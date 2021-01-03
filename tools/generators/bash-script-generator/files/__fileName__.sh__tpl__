@@ -1,0 +1,91 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o noclobber
+set -o nounset
+#set -o xtrace
+
+################################################################################
+# Runtime Settings
+################################################################################
+
+<%= constantName %>_ARGUMENTS='Hello World!'
+
+################################################################################
+# Options
+################################################################################
+
+# Print help.
+declare -A <%= constantName %>_OPT_HELP=([NAME]=help [LONG]=help [SHORT]=h)
+
+################################################################################
+# Functions
+################################################################################
+
+<%= snakeCaseName %>_main() {
+  <%= snakeCaseName %>_parse_args ${@}
+
+  echo ${<%= constantName %>_ARGUMENTS}
+}
+
+<%= snakeCaseName %>_parse_args() {
+  # Options parsing.
+  local opts="${<%= constantName %>_OPT_HELP[SHORT]}"
+  local longopts="${<%= constantName %>_OPT_HELP[LONG]}"
+
+  ! PARSED=$(getopt --options=${opts} --longoptions=${longopts} --name "${0}" -- "${@}")
+
+  if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
+    # getopt has complained about wrong arguments to stdout.
+    <%= snakeCaseName %>_print_usage
+    exit 1
+  fi
+
+  # Handle quoting in getopt output.
+  eval set -- "${PARSED}"
+
+  while true; do
+    case "$1" in
+      "-${<%= constantName %>_OPT_HELP[SHORT]}"|"--${<%= constantName %>_OPT_HELP[LONG]}")
+        <%= snakeCaseName %>_print_help
+        exit 0
+        ;;
+      --)
+        shift
+        break
+        ;;
+    esac
+  done
+
+  # Arguments parsing.
+  if [ "${#}" -gt 0 ]; then
+    <%= constantName %>_ARGUMENTS="${@}"
+  fi
+}
+
+<%= snakeCaseName %>_print_usage() {
+  cat <<EOF
+Usage:
+  $0 [<argument>...]
+  $0 [-${<%= constantName %>_OPT_HELP[SHORT]}]
+
+  When no arguments provided, prints 'Hello World!' to stdout.
+
+  -${<%= constantName %>_OPT_HELP[SHORT]}, --${<%= constantName %>_OPT_HELP[LONG]}
+    Print help information.
+EOF
+}
+
+<%= snakeCaseName %>_print_help() {
+  printf '\nEcho arguments to stdout.\n\n'
+  <%= snakeCaseName %>_print_usage
+}
+
+################################################################################
+# Program Entry
+################################################################################
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  <%= snakeCaseName %>_main ${@}
+fi

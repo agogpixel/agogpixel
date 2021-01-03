@@ -1,0 +1,21 @@
+{
+  "id": "bash-script-generator",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Script name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use for the bash script?",
+      "pattern": "^[a-zA-Z]{1}.*$"
+    },
+    "directory": {
+      "type": "string",
+      "description": "A directory where the bash script is placed."
+    }
+  },
+  "required": ["name"]
+}

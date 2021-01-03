@@ -1,0 +1,1 @@
+FROM <%= imageFamily %>:latest

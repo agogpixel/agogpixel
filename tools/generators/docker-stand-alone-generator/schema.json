@@ -1,0 +1,25 @@
+{
+  "id": "docker-stand-alone-generator",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Project name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use for the docker stand-alone project?",
+      "pattern": "^[a-zA-Z]{1}.*$"
+    },
+    "directory": {
+      "type": "string",
+      "description": "A directory where the docker stand-alone project is placed."
+    },
+    "tags": {
+      "type": "string",
+      "description": "Add tags to the docker stand-alone project."
+    }
+  },
+  "required": ["name"]
+}

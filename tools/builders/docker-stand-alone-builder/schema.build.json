@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "type": "object",
+  "properties": {
+    "variant": {
+      "type": "string",
+      "description": "Variant to build. Builds all if not provided."
+    },
+    "buildArgs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Build arguments. Merged with & overrides defaults."
+    }
+  }
+}

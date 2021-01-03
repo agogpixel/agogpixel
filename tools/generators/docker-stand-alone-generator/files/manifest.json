@@ -1,0 +1,10 @@
+{
+  "name": "<%= imageName %>",
+  "family": "<%= imageFamily %>",
+  "dockerfile": "./Dockerfile",
+  "context": ".",
+  "scripts": [],
+  "scriptsDestination": "./scripts",
+  "buildArgs": {},
+  "variants": {}
+}

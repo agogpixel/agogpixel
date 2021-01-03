@@ -1,0 +1,39 @@
+{
+  "npmScope": "agogpixel",
+  "affected": {
+    "defaultBase": "master"
+  },
+  "implicitDependencies": {
+    "workspace.json": "*",
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
+    "tsconfig.base.json": "*",
+    "tslint.json": "*",
+    ".eslintrc.json": "*",
+    "nx.json": "*"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["lint", "test", "e2e"]
+      }
+    }
+  },
+  "projects": {
+    "shared-phaser-ng-phaser": {
+      "tags": [],
+      "implicitDependencies": []
+    },
+    "alpine-alpine-foundation": {
+      "tags": [],
+      "implicitDependencies": []
+    },
+    "devcontainer": {
+      "tags": [],
+      "implicitDependencies": []
+    }
+  }
+}

@@ -1,0 +1,110 @@
+load '/opt/bats-core/bats-support/load.bash'
+load '/opt/bats-core/bats-assert/load.bash'
+
+@test "[<%= snakeCaseName %>_print_usage] Prints usage." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_print_usage
+
+  assert_success
+  assert_output --partial "Usage:"
+}
+
+@test "[<%= snakeCaseName %>_print_help] Prints help." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_print_help
+
+  assert_success
+  assert_output --partial "Echo arguments to stdout."
+}
+
+@test "[<%= snakeCaseName %>_parse_args] Success when no arguments provided." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_parse_args
+
+  assert_success
+  assert_output ''
+}
+
+@test "[<%= snakeCaseName %>_parse_args] Success when non-option arguments provided." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_parse_args a b c d
+
+  assert_success
+  assert_output ''
+}
+
+@test "[<%= snakeCaseName %>_parse_args] Prints usage & returns with success when -h option provided." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_parse_args -h
+
+  assert_success
+  assert_output --partial "Usage:"
+}
+
+@test "[<%= snakeCaseName %>_parse_args] Prints usage & returns with success when --help option provided." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_parse_args --help
+
+  assert_success
+  assert_output --partial "Usage:"
+}
+
+@test "[<%= snakeCaseName %>_parse_args] Prints usage & returns error code 1 (invalid option)." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_parse_args --fail-it
+
+  assert_failure 1
+  assert_output --partial "Usage:"
+}
+
+@test "[<%= snakeCaseName %>_main] Prints usage & exits with success when -h option provided." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_main -h
+
+  assert_success
+  assert_output --partial "Usage:"
+}
+
+@test "[<%= snakeCaseName %>_main] Prints usage & exits with success when --help option provided." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_main --help
+
+  assert_success
+  assert_output --partial "Usage:"
+}
+
+@test "[<%= snakeCaseName %>_main] Prints usage & exits with error code 1 (invalid option)." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_main --fail-it
+
+  assert_failure 1
+  assert_output --partial "Usage:"
+}
+
+@test "[<%= snakeCaseName %>_main] Prints 'Hello World!' when no arguments provided." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_main
+
+  assert_success
+  assert_output --partial 'Hello World!'
+}
+
+@test "[<%= snakeCaseName %>_main] Prints arguments provided." {
+  source ./<%= fileName %>.sh
+
+  run <%= snakeCaseName %>_main a b c d
+
+  assert_success
+  assert_output --partial 'a b c d'
+}

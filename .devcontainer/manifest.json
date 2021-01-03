@@ -1,0 +1,42 @@
+{
+  "name": "devcontainer",
+  "family": "alpine",
+  "dockerfile": "./Dockerfile",
+  "context": ".",
+  "scripts": [
+    "alpine-foundation-installer",
+    "alpine-dfromd-foundation-installer",
+    "alpine-net-installer",
+    "alpine-git-installer",
+    "alpine-nodejs-installer",
+    "bats-installer"
+  ],
+  "scriptsDestination": "./library-scripts",
+  "buildArgs": {},
+  "variants": {
+    "3-10": {
+      "name": "3.10",
+      "buildArgs": {
+        "ALPINE_VERSION": "3.10"
+      }
+    },
+    "3-11": {
+      "name": "3.11",
+      "buildArgs": {
+        "ALPINE_VERSION": "3.11"
+      }
+    },
+    "3-12": {
+      "name": "3.12",
+      "buildArgs": {
+        "ALPINE_VERSION": "3.12"
+      }
+    },
+    "edge": {
+      "name": "edge",
+      "buildArgs": {
+        "ALPINE_VERSION": "edge"
+      }
+    }
+  }
+}

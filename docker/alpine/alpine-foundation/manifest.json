@@ -1,0 +1,35 @@
+{
+  "name": "alpine-foundation",
+  "family": "alpine",
+  "dockerfile": "./Dockerfile",
+  "context": ".",
+  "scripts": ["alpine-foundation-installer"],
+  "scriptsDestination": "./scripts",
+  "buildArgs": {},
+  "variants": {
+    "3-10": {
+      "name": "3.10",
+      "buildArgs": {
+        "ALPINE_VERSION": "3.10"
+      }
+    },
+    "3-11": {
+      "name": "3.11",
+      "buildArgs": {
+        "ALPINE_VERSION": "3.11"
+      }
+    },
+    "3-12": {
+      "name": "3.12",
+      "buildArgs": {
+        "ALPINE_VERSION": "3.12"
+      }
+    },
+    "edge": {
+      "name": "edge",
+      "buildArgs": {
+        "ALPINE_VERSION": "edge"
+      }
+    }
+  }
+}
