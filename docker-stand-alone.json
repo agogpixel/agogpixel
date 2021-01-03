@@ -1,0 +1,17 @@
+{
+  "organization": "agogpixel",
+  "affected": {
+    "defaultBase": "main"
+  },
+  "projects": {
+    "alpine-foundation": {
+      "root": "docker/alpine/alpine-foundation"
+    },
+    "devcontainer": {
+      "root": ".devcontainer"
+    },
+    "dind-foundation": {
+      "root": "docker/alpine/dind-foundation"
+    }
+  }
+}
