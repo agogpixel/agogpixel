@@ -1,0 +1,4 @@
+.dockerignore
+Dockerfile
+manifest.json
+README.md

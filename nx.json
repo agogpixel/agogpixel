@@ -18,7 +18,11 @@
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["lint", "test", "e2e"]
+        "cacheableOperations": [
+          "lint",
+          "test",
+          "e2e"
+        ]
       }
     }
   },
@@ -32,6 +36,10 @@
       "implicitDependencies": []
     },
     "devcontainer": {
+      "tags": [],
+      "implicitDependencies": []
+    },
+    "alpine-dind-foundation": {
       "tags": [],
       "implicitDependencies": []
     }

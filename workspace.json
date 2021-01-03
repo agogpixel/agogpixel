@@ -87,6 +87,28 @@
           "options": {}
         }
       }
+    },
+    "alpine-dind-foundation": {
+      "root": "docker/alpine/dind-foundation",
+      "projectType": "docker",
+      "architect": {
+        "build": {
+          "builder": "./dist/out-tsc/tools/builders/docker-stand-alone-builder:build",
+          "options": {}
+        },
+        "test": {
+          "builder": "./dist/out-tsc/tools/builders/docker-stand-alone-builder:test",
+          "options": {}
+        },
+        "tag": {
+          "builder": "./dist/out-tsc/tools/builders/docker-stand-alone-builder:tag",
+          "options": {}
+        },
+        "push": {
+          "builder": "./dist/out-tsc/tools/builders/docker-stand-alone-builder:push",
+          "options": {}
+        }
+      }
     }
   },
   "cli": {

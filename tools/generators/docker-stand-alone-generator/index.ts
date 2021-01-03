@@ -91,19 +91,19 @@ export default function (options: Schema): Rule {
       prefix: undefined,
       architect: {
         build: {
-          builder: './tools/builders/docker-stand-alone-builder:build',
+          builder: './dist/out-tsc/tools/builders/docker-stand-alone-builder:build',
           options: {},
         },
         test: {
-          builder: './tools/builders/docker-stand-alone-builder:test',
+          builder: './dist/out-tsc/tools/builders/docker-stand-alone-builder:test',
           options: {},
         },
         tag: {
-          builder: './tools/builders/docker-stand-alone-builder:tag',
+          builder: './dist/out-tsc/tools/builders/docker-stand-alone-builder:tag',
           options: {},
         },
         push: {
-          builder: './tools/builders/docker-stand-alone-builder:push',
+          builder: './dist/out-tsc/tools/builders/docker-stand-alone-builder:push',
           options: {},
         }
       },
