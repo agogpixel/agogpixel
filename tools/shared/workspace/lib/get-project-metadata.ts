@@ -11,7 +11,7 @@ export async function getProjectMetadata(context: BuilderContext): Promise<Proje
   const projectName = context.target?.project || '';
 
   const workspace = (await context.getProjectMetadata(projectName)) as unknown as WorkspaceJsonProjectConfig;
-  const nx = require(`${context.workspaceRoot}/nx.json`)[projectName] as NxJsonProjectConfig;
+  const nx = (await require(`${context.workspaceRoot}/nx.json`)).default[projectName] as NxJsonProjectConfig;
 
   return { workspace, nx };
 }

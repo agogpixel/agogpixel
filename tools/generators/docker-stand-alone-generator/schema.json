@@ -15,10 +15,6 @@
     "directory": {
       "type": "string",
       "description": "A directory where the docker stand-alone project is placed."
-    },
-    "tags": {
-      "type": "string",
-      "description": "Add tags to the docker stand-alone project."
     }
   },
   "required": ["name"]

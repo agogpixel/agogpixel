@@ -1,37 +1,31 @@
-import { BuilderContext, BuilderOutput } from '@angular-devkit/architect';
-
 import { ChildProcess, spawn } from 'child_process';
 import { normalize } from 'path';
-import { from, Observable } from 'rxjs';
-
-import { getProjectMetadata } from '../../workspace';
 
 import { copyScripts } from './copy-scripts';
 import { getBuildCommand } from './get-build-command';
+import { getProjectMetadata } from './get-project-metadata';
 import { getVariantBuildConfigs } from './get-variant-build-configs';
 import { getVariantsToBuild } from './get-variants-to-build';
-import { dockerStandAloneScriptsPath, Manifest } from './models';
+import { BuilderConfig, dockerStandAloneScriptsPath } from './models';
 
 /**
  * Asynchronously build docker stand-alone images.
  *
- * @param context Builder context.
- * @param variant Image variant.
- * @param buildArgs Custom build agruments.
+ * @param config Builder configuration.
  */
-async function buildAsync(context: BuilderContext, variant: string, buildArgs: Record<string, string>): Promise<BuilderOutput> {
-  const { workspace } = await getProjectMetadata(context);
+export async function build(config: BuilderConfig): Promise<() => void> {
+  const { buildArgs, host, projectName, variant } = config;
 
-  const projectPath = `${context.workspaceRoot}/${workspace.root}`;
+  const { workspace, manifest } = getProjectMetadata(host, projectName);
 
-  const manifest = require(`${projectPath}/manifest.json`) as Manifest;
+  const projectPath = `${host.root}/${workspace.root}`;
 
   const imageName = manifest.name;
   const imageFamily = manifest.family;
 
-  const scriptsSourcePath = `${context.workspaceRoot}/${dockerStandAloneScriptsPath}`;
+  const scriptsSourcePath = `${host.root}/${dockerStandAloneScriptsPath}`;
 
-  context.logger.info(`Gathering variant configurations for ${manifest.name}...\n`);
+  console.info(`Gathering variant configurations for ${manifest.name}...\n`);
 
   const variantsToBuild = getVariantsToBuild(manifest, variant);
   const variantBuildConfigs = getVariantBuildConfigs(manifest, variantsToBuild, buildArgs);
@@ -44,34 +38,34 @@ async function buildAsync(context: BuilderContext, variant: string, buildArgs: R
    * Copies scripts & runs builds synchronously within an async context via
    * recursive closure.
    *
-   * @param resolve Subscriber from cli builder context. Invoked with builder
-   * output that is a success only if all builds where successful.
+   * @param resolve Subscriber from workspace generator cli context. Invoked
+   * with builder output that is a success only if all builds where successful.
    */
-  async function runner(resolve: (value?: BuilderOutput | PromiseLike<BuilderOutput>) => void): Promise<void> {
-    const config = variantBuildConfigs[runIndex];
+  async function runner(resolve: (value?: () => void) => void, reject: (reason?: any) => void): Promise<void> {
+    const variantBuildConfig = variantBuildConfigs[runIndex];
 
-    context.logger.info(`################################################################################\n# Variant: ${config.name}\n################################################################################\n`);
+    console.info(`################################################################################\n# Variant: ${variantBuildConfig.name}\n################################################################################\n`);
 
-    const scriptsDestinationPath = normalize(`${projectPath}/${config.scriptsDestination}`);
-    const scripts = config.scripts;
+    const scriptsDestinationPath = normalize(`${projectPath}/${variantBuildConfig.scriptsDestination}`);
+    const scripts = variantBuildConfig.scripts;
 
-    context.logger.info(`Copying scripts: ${JSON.stringify(scripts, undefined, 2)}\n`);
+    console.info(`Copying scripts: ${JSON.stringify(scripts, undefined, 2)}\n`);
 
     await copyScripts(scriptsSourcePath, scriptsDestinationPath, imageFamily, scripts);
 
-    const { command, args } = getBuildCommand(imageName, projectPath, config);
+    const { command, args } = getBuildCommand(imageName, projectPath, variantBuildConfig);
 
-    context.logger.info(`Running: ${command} ${args.join(' ')}\n`);
+    console.info(`Running: ${command} ${args.join(' ')}\n`);
 
     // Track docker build execution state & output from child process.
     const run = runs[runIndex] = { process: spawn(command, args), code: undefined };
 
     run.process.stdout.on('data', (data) => {
-      context.logger.info(data.toString());
+      console.info(data.toString());
     });
 
     run.process.stderr.on('data', (data) => {
-      context.logger.error(data.toString());
+      console.log(data.toString());
     });
 
     run.process.on('close', (code) => {
@@ -79,35 +73,24 @@ async function buildAsync(context: BuilderContext, variant: string, buildArgs: R
       run.code = code;
 
       if (++runIndex >= variantsToBuild.length) {
-        // All builds complete. Return control to builder cli with our success status.
+        // All build runs complete.
         const success = runs.every(({ code }) => code === 0);
 
-        if (success) {
-          context.logger.info('OK');
-        } else {
-          context.logger.info('FAIL');
+        if (!success) {
+          reject(`Error occured during a build run: ${JSON.stringify(runs.map(({ code }) => ({ code })), undefined, 2)}`)
+          return;
         }
 
-        resolve({ success });
+        console.info('OK');
 
+        resolve(() => undefined);
         return;
       }
 
       // Run the next build.
-      runner(resolve);
+      runner(resolve, reject);
     });
   }
 
-  return new Promise<BuilderOutput>((resolve) => runner(resolve));
-}
-
-/**
- * Build docker stand-alone images.
- *
- * @param context Builder context.
- * @param variant Image variant.
- * @param buildArgs Custom build arguments.
- */
-export function build(context: BuilderContext, variant?: string, buildArgs: Record<string, string> = {}): Observable<BuilderOutput> {
-  return from(buildAsync(context, variant, buildArgs));
+  return new Promise<() => void>((resolve, reject) => runner(resolve, reject));
 }

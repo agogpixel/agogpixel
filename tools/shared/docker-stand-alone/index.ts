@@ -1,2 +1,3 @@
 export * from './lib/build';
-export { dockerStandAloneRootDir, dockerString, Family } from './lib/models';
+export * from './lib/generate';
+export { BuilderConfig, dockerStandAloneRootDir, Family, GeneratorConfig } from './lib/models';
