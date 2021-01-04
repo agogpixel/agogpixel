@@ -31,18 +31,6 @@
     "shared-phaser-ng-phaser": {
       "tags": [],
       "implicitDependencies": []
-    },
-    "alpine-alpine-foundation": {
-      "tags": [],
-      "implicitDependencies": []
-    },
-    "devcontainer": {
-      "tags": [],
-      "implicitDependencies": []
-    },
-    "alpine-dind-foundation": {
-      "tags": [],
-      "implicitDependencies": []
     }
   }
 }

@@ -1,3 +1,3 @@
 # Warning
 
-Files in this directory can be over-written when `nx build devcontainer` is invoked.
+Files in this directory can be over-written when `npm run workspace-generator:docker-stand-alone-builder -- devcontainer` is invoked.

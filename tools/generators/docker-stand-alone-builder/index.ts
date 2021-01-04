@@ -13,7 +13,7 @@ import { Schema } from './schema';
 function normalizeOptions(host: Tree, schema: Schema): BuilderConfig {
   const buildArgs = {};
 
-  schema.buildArgs.forEach((arg) => {
+  schema.buildArgs?.forEach((arg) => {
     const [key, value] = arg.split(/=(.+)/);
 
     if (!key) {

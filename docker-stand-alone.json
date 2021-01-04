@@ -5,13 +5,16 @@
   },
   "projects": {
     "alpine-foundation": {
-      "root": "docker/alpine/alpine-foundation"
+      "root": "docker/alpine-foundation"
     },
     "devcontainer": {
       "root": ".devcontainer"
     },
     "dind-foundation": {
-      "root": "docker/alpine/dind-foundation"
+      "root": "docker/dind-foundation"
+    },
+    "cave": {
+      "root": "docker/cave"
     }
   }
 }
