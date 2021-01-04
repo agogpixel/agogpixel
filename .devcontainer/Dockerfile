@@ -1,8 +1,8 @@
-ARG ALPINE_VERSION=3.12
+ARG ALPINE_VERSION=edge
 FROM alpine:${ALPINE_VERSION}
 
 # Alpine tag of the form 'x.y' or 'edge'.
-ARG ALPINE_VERSION=3.12
+ARG ALPINE_VERSION=edge
 # Non-root user.
 ARG USERNAME=non-root
 ARG UID=1000

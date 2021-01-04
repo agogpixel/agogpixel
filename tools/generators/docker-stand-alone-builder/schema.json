@@ -1,0 +1,29 @@
+{
+  "cli": "nx",
+  "id": "docker-stand-alone-builder",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Project name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What docker stand-alone project would you like to build?",
+      "pattern": "^[a-zA-Z]{1}.*$"
+    },
+    "variant": {
+      "type": "string",
+      "description": "Variant to build. Builds all if not provided."
+    },
+    "buildArgs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Build arguments. Merged with & overrides defaults."
+    }
+  },
+  "required": ["name"]
+}

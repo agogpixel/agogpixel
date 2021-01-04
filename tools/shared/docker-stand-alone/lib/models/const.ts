@@ -1,12 +1,12 @@
 /**
- * String literal: 'docker'.
+ * Name of docker stand-alone workspace JSON file.
  */
-export const dockerString = 'docker';
+export const dockerStandAloneWorkspaceJsonFile = 'docker-stand-alone.json';
 
 /**
  * Name of docker stand-alone root directory.
  */
-export const dockerStandAloneRootDir = dockerString;
+export const dockerStandAloneRootDir = 'docker';
 
 /**
  * Docker stand-alone scripts directory path, relative to workspace root.

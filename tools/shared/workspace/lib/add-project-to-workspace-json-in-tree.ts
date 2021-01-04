@@ -1,3 +1,4 @@
+import { Rule } from '@angular-devkit/schematics';
 import { updateWorkspaceInTree } from '@nrwl/workspace';
 
 import { WorkspaceJsonProjectConfig } from './models';
@@ -11,7 +12,7 @@ import { WorkspaceJsonProjectConfig } from './models';
 export function addProjectToWorkspaceJsonInTree(
   name: string,
   config: WorkspaceJsonProjectConfig
-) {
+): Rule {
   return updateWorkspaceInTree((json: Record<string, unknown>) => {
     if (json.projects[name]) {
       throw new Error(`'${name}' already exists.`);

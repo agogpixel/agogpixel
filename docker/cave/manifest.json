@@ -1,0 +1,10 @@
+{
+  "name": "cave",
+  "family": "alpine",
+  "dockerfile": "./Dockerfile",
+  "context": ".",
+  "scripts": [],
+  "scriptsDestination": "./scripts",
+  "buildArgs": {},
+  "variants": {}
+}
