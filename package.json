@@ -29,6 +29,7 @@
     "update": "nx migrate latest",
     "workspace-generator": "nx workspace-generator",
     "workspace-generator:bash-script-generator": "npm run workspace-generator -- bash-script-generator",
+    "workspace-generator:docker-stand-alone-affector": "npm run workspace-generator -- docker-stand-alone-affector",
     "workspace-generator:docker-stand-alone-builder": "npm run workspace-generator -- docker-stand-alone-builder",
     "workspace-generator:docker-stand-alone-generator": "npm run workspace-generator -- docker-stand-alone-generator"
   },

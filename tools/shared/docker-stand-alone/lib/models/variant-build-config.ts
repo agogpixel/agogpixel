@@ -3,6 +3,11 @@
  */
 export interface VariantBuildConfig {
   /**
+   * Variant key.
+   */
+  key: string;
+
+  /**
    * Variant name.
    */
   name: string;

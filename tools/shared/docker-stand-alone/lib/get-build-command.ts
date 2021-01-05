@@ -26,9 +26,7 @@ export function getBuildCommand(
   const cliTags = [
     ...(variantName !== 'default'
       ? ['-t', variantTag, '-t', `${variantTag}-latest`]
-      : []),
-    '-t',
-    `${imageName}:latest`,
+      : ['-t', `${imageName}:latest`]),
   ];
 
   const cliBuildArgs = Object.entries(config.buildArgs).reduce<string[]>(

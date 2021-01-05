@@ -5,7 +5,6 @@ import { copyScripts } from './copy-scripts';
 import { getBuildCommand } from './get-build-command';
 import { getProjectMetadata } from './get-project-metadata';
 import { getVariantBuildConfigs } from './get-variant-build-configs';
-import { getVariantsToBuild } from './get-variants-to-build';
 import { BuilderConfig, dockerStandAloneScriptsPath } from './models';
 
 /**
@@ -27,8 +26,7 @@ export async function build(config: BuilderConfig): Promise<() => void> {
 
   console.info(`Gathering variant configurations for ${manifest.name}...\n`);
 
-  const variantsToBuild = getVariantsToBuild(manifest, variant);
-  const variantBuildConfigs = getVariantBuildConfigs(manifest, variantsToBuild, buildArgs);
+  const variantBuildConfigs = getVariantBuildConfigs(manifest, variant, buildArgs);
 
   const runs: { process: ChildProcess; code: number; }[] = []
 
@@ -72,7 +70,7 @@ export async function build(config: BuilderConfig): Promise<() => void> {
       // Process for docker build closed, track exit code.
       run.code = code;
 
-      if (++runIndex >= variantsToBuild.length) {
+      if (++runIndex >= variantBuildConfigs.length) {
         // All build runs complete.
         const success = runs.every(({ code }) => code === 0);
 
