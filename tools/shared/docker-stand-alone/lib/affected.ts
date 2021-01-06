@@ -36,10 +36,15 @@ export async function affected(host: Tree) {
     const variants = getVariantBuildConfigs(manifest);
 
     variants.forEach((variant) => {
-      const variantHasAffectedSourceScript = variant.scripts.some(
-        (scriptName) =>
+      const variantHasAffectedSourceScript =
+        affectedSourceScripts.some(
+          (file) =>
+            file.includes('shared-lib') ||
+            file.includes(`shared-${manifest.family}-lib`)
+        ) ||
+        variant.scripts.some((scriptName) =>
           affectedSourceScripts.some((file) => file.includes(scriptName))
-      );
+        );
 
       if (variantHasAffectedSourceScript) {
         addToAffectedProjects(projectName, variant.key);
