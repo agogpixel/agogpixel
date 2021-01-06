@@ -1,3 +1,4 @@
+export * from './affected-config';
 export * from './build-command';
 export * from './builder-config';
 export * from './const';

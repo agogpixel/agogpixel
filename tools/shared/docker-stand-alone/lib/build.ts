@@ -12,7 +12,7 @@ import { BuilderConfig, dockerStandAloneScriptsPath } from './models';
  *
  * @param config Builder configuration.
  */
-export async function build(config: BuilderConfig): Promise<() => void> {
+export async function build(config: BuilderConfig): Promise<() => boolean> {
   const { buildArgs, host, projectName, variant } = config;
 
   const { workspace, manifest } = getProjectMetadata(host, projectName);
@@ -39,7 +39,7 @@ export async function build(config: BuilderConfig): Promise<() => void> {
    * @param resolve Subscriber from workspace generator cli context. Invoked
    * with builder output that is a success only if all builds where successful.
    */
-  async function runner(resolve: (value?: () => void) => void, reject: (reason?: any) => void): Promise<void> {
+  async function runner(resolve: (value?: () => boolean) => void, reject: (reason?: any) => void): Promise<void> {
     const variantBuildConfig = variantBuildConfigs[runIndex];
 
     console.info(`################################################################################\n# Variant: ${variantBuildConfig.name}\n################################################################################\n`);
@@ -81,7 +81,7 @@ export async function build(config: BuilderConfig): Promise<() => void> {
 
         console.info('OK');
 
-        resolve(() => undefined);
+        resolve(() => success);
         return;
       }
 
@@ -90,5 +90,5 @@ export async function build(config: BuilderConfig): Promise<() => void> {
     });
   }
 
-  return new Promise<() => void>((resolve, reject) => runner(resolve, reject));
+  return new Promise<() => boolean>((resolve, reject) => runner(resolve, reject));
 }

@@ -3,14 +3,46 @@
   "id": "docker-stand-alone-affector",
   "type": "object",
   "properties": {
-    "name": {
+    "base": {
       "type": "string",
-      "description": "Library name",
-      "$default": {
-        "$source": "argv",
-        "index": 0
-      }
+      "description": "Base branch for calculating affected projects."
+    },
+    "head": {
+      "type": "string",
+      "description": "Head branch for calculating affected projects."
+    },
+    "project": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Only perform actions on specified project, if affected."
+    },
+    "build": {
+      "type": "boolean",
+      "description": "Build all affected projects & variants."
+    },
+    "commit": {
+      "type": "boolean",
+      "description": "Commit & push changes from builds back to origin."
+    },
+    "test": {
+      "type": "boolean",
+      "description": "Test all affected projects & variants that have successfully built images."
+    },
+    "tag": {
+      "type": "boolean",
+      "description": "Tag (with organization name) all affected projects & variants that have been successfully built & tested images."
+    },
+    "push": {
+      "type": "boolean",
+      "description": "Push images of all affected projects & variants that have been successfully built, tested, & tagged."
     }
   },
-  "required": ["name"]
+  "dependencies": {
+    "commit": { "required": ["build"] },
+    "test": { "required": ["build"] },
+    "tag": { "required": ["build", "test"] },
+    "push": { "required": ["build", "test", "push"] }
+  }
 }

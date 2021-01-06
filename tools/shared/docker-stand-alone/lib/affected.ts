@@ -1,85 +1,72 @@
 import { Tree } from '@nrwl/devkit';
 
-import { normalize } from 'path';
+import { build as builder } from './build';
+import { getAffectedProjects } from './get-affected-projects';
+import { AffectedConfig } from './models';
 
-import { getGitFiles } from '../../workspace';
+export async function affected(
+  host: Tree,
+  config: AffectedConfig
+): Promise<() => boolean> {
+  const affectedProjects = getAffectedProjects(host, config);
 
-import { getManifest } from './get-manifest';
-import { getVariantBuildConfigs } from './get-variant-build-configs';
-import { getWorkspace } from './get-workspace';
-import { dockerStandAloneScriptsPath } from './models';
+  const { build, commit, test, tag, push } = config;
 
-export async function affected(host: Tree) {
-  const {
-    affected: { defaultBase },
-    projects,
-  } = getWorkspace(host);
-
-  const { files: affectedFiles } = getGitFiles({ base: defaultBase });
-
-  const affectedSourceScripts = affectedFiles.filter((file) =>
-    file.includes(dockerStandAloneScriptsPath)
-  );
-
-  const affectedProjects: Record<string, string[]> = {};
-
-  function addToAffectedProjects(name: string, key: string): void {
-    if (!affectedProjects[name]) {
-      affectedProjects[name] = [key];
-    } else {
-      affectedProjects[name].push(key);
-    }
+  if (!build) {
+    return () => {
+      console.log(`${JSON.stringify(affectedProjects, undefined, 2)}`);
+      return true;
+    };
   }
 
-  Object.entries(projects).forEach(([projectName, { root }]) => {
-    const manifest = getManifest(host, projectName);
-    const variants = getVariantBuildConfigs(manifest);
+  const affectedProjectsEntries = Object.entries(affectedProjects);
 
-    variants.forEach((variant) => {
-      const variantHasAffectedSourceScript =
-        affectedSourceScripts.some(
-          (file) =>
-            file.includes('shared-lib') ||
-            file.includes(`shared-${manifest.family}-lib`)
-        ) ||
-        variant.scripts.some((scriptName) =>
-          affectedSourceScripts.some((file) => file.includes(scriptName))
-        );
+  const buildResults = affectedProjectsEntries.reduce(
+    (results, [projectName]) => {
+      results[projectName] = {};
+      return results;
+    },
+    {} as Record<string, Record<string, boolean>>
+  );
 
-      if (variantHasAffectedSourceScript) {
-        addToAffectedProjects(projectName, variant.key);
-        return;
+  let projectIndex = 0;
+
+  function projectRunner(resolve: (value?: () => void) => void) {
+    const [projectName, variants] = affectedProjectsEntries[projectIndex];
+
+    let variantIndex = 0;
+
+    function variantRunner(resolve: (value?: () => void) => void) {
+      const variant = variants[variantIndex];
+
+      function builderResultHandler(result = () => false): void {
+        buildResults[projectName][variant] = result();
+
+        if (++variantIndex >= variants.length) {
+          if (++projectIndex >= affectedProjectsEntries.length) {
+            resolve();
+            return;
+          }
+
+          projectRunner(resolve);
+          return;
+        }
+
+        variantRunner(resolve);
       }
 
-      // Variant paths are relative ie. they could point anywhere.
-      const scriptsDestinationPath = normalize(
-        `${root}/${variant.scriptsDestination}`
-      ).replace(host.root, '');
-      const dockerfile = normalize(`${root}/${variant.dockerfile}`).replace(
-        host.root,
-        ''
+      builder({ projectName, variant, buildArgs: {}, host }).then(
+        (result) => builderResultHandler(result),
+        () => builderResultHandler()
       );
-      const context = normalize(`${root}/${variant.context}`).replace(
-        host.root,
-        ''
-      );
+    }
 
-      const variantHasAffectedFiles = affectedFiles.some(
-        (file) =>
-          file.includes(`${root}/manifest.json`) ||
-          file.includes(scriptsDestinationPath) ||
-          file.includes(dockerfile) ||
-          file.includes(context)
-      );
+    variantRunner(resolve);
+  }
 
-      if (variantHasAffectedFiles) {
-        addToAffectedProjects(projectName, variant.key);
-      }
-    });
-  });
+  await new Promise<() => void>((resolve) => projectRunner(resolve));
 
-  // Dispatch action with affected projects.
-  console.log(`${JSON.stringify(affectedProjects, undefined, 2)}`);
+  console.log(`${JSON.stringify(buildResults, undefined, 2)}`);
 
   return () => undefined;
 }
