@@ -2,6 +2,12 @@ import { Tree } from '@nrwl/devkit';
 
 import { build } from './build';
 
+/**
+ * Build affected docker stand-alone projects.
+ *
+ * @param host Virtual file system tree.
+ * @param projects Projects with variants.
+ */
 export function buildAffected(
   host: Tree,
   projects: Record<string, string[]>

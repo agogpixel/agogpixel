@@ -1,5 +1,5 @@
 /**
- * Options schema.
+ * Bash script generator options schema.
  */
 export interface Schema {
   /**

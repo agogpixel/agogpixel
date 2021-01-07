@@ -1,5 +1,8 @@
 import { Tree } from '@nrwl/devkit';
 
+/**
+ * Builder configuration.
+ */
 export interface BuilderConfig {
   /**
    * Project name.

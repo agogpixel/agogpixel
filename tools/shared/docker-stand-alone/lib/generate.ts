@@ -6,6 +6,11 @@ import { createFiles } from '../../workspace';
 import { addProjectToWorkspaceJsonInTree } from './add-project-to-workspace-json-in-tree';
 import { GeneratorConfig, Project } from './models';
 
+/**
+ * Generate docker stand-alone project.
+ *
+ * @param config Generator configuration.
+ */
 export function generate(config: GeneratorConfig): Rule {
   const {
     imageName,

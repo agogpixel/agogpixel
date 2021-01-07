@@ -9,7 +9,7 @@ import { Schema } from './schema';
  *
  * @param schema Schema.
  */
-function normalizeOptions(schema: Schema): AffectedConfig {
+function normalizeOptions(host: Tree, schema: Schema): AffectedConfig {
   const { base, head, project, build, commit, test, tag, push } = schema;
 
   return {
@@ -20,13 +20,20 @@ function normalizeOptions(schema: Schema): AffectedConfig {
     test,
     tag,
     push,
+    host,
     filter: project ? [...project] : [],
   };
 }
 
+/**
+ * Process affected docker stand-alone projects.
+ *
+ * @param host Virtual file system tree.
+ * @param schema Schema.
+ */
 export default async function (
   host: Tree,
   schema: Schema
 ): Promise<() => void> {
-  return affected(host, normalizeOptions(schema));
+  return affected(normalizeOptions(host, schema));
 }

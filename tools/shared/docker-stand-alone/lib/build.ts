@@ -26,9 +26,13 @@ export async function build(config: BuilderConfig): Promise<() => boolean> {
 
   console.info(`Gathering variant configurations for ${manifest.name}...\n`);
 
-  const variantBuildConfigs = getVariantBuildConfigs(manifest, variant, buildArgs);
+  const variantBuildConfigs = getVariantBuildConfigs(
+    manifest,
+    variant,
+    buildArgs
+  );
 
-  const runs: { process: ChildProcess; code: number; }[] = []
+  const runs: { process: ChildProcess; code: number }[] = [];
 
   let runIndex = 0;
 
@@ -39,24 +43,43 @@ export async function build(config: BuilderConfig): Promise<() => boolean> {
    * @param resolve Subscriber from workspace generator cli context. Invoked
    * with builder output that is a success only if all builds where successful.
    */
-  async function runner(resolve: (value?: () => boolean) => void, reject: (reason?: any) => void): Promise<void> {
+  async function runner(
+    resolve: (value?: () => boolean) => void,
+    reject: (reason?: any) => void
+  ): Promise<void> {
     const variantBuildConfig = variantBuildConfigs[runIndex];
 
-    console.info(`################################################################################\n# Variant: ${variantBuildConfig.name}\n################################################################################\n`);
+    console.info(
+      `################################################################################\n# Variant: ${variantBuildConfig.name}\n################################################################################\n`
+    );
 
-    const scriptsDestinationPath = normalize(`${projectPath}/${variantBuildConfig.scriptsDestination}`);
+    const scriptsDestinationPath = normalize(
+      `${projectPath}/${variantBuildConfig.scriptsDestination}`
+    );
     const scripts = variantBuildConfig.scripts;
 
     console.info(`Copying scripts: ${JSON.stringify(scripts, undefined, 2)}\n`);
 
-    await copyScripts(scriptsSourcePath, scriptsDestinationPath, imageFamily, scripts);
+    await copyScripts(
+      scriptsSourcePath,
+      scriptsDestinationPath,
+      imageFamily,
+      scripts
+    );
 
-    const { command, args } = getBuildCommand(imageName, projectPath, variantBuildConfig);
+    const { command, args } = getBuildCommand(
+      imageName,
+      projectPath,
+      variantBuildConfig
+    );
 
     console.info(`Running: ${command} ${args.join(' ')}\n`);
 
     // Track docker build execution state & output from child process.
-    const run = runs[runIndex] = { process: spawn(command, args), code: undefined };
+    const run = (runs[runIndex] = {
+      process: spawn(command, args),
+      code: undefined,
+    });
 
     run.process.stdout.on('data', (data) => {
       console.info(data.toString());
@@ -75,7 +98,13 @@ export async function build(config: BuilderConfig): Promise<() => boolean> {
         const success = runs.every(({ code }) => code === 0);
 
         if (!success) {
-          reject(`Error occured during a build run: ${JSON.stringify(runs.map(({ code }) => ({ code })), undefined, 2)}`)
+          reject(
+            `Error occured during a build run: ${JSON.stringify(
+              runs.map(({ code }) => ({ code })),
+              undefined,
+              2
+            )}`
+          );
           return;
         }
 
@@ -90,5 +119,7 @@ export async function build(config: BuilderConfig): Promise<() => boolean> {
     });
   }
 
-  return new Promise<() => boolean>((resolve, reject) => runner(resolve, reject));
+  return new Promise<() => boolean>((resolve, reject) =>
+    runner(resolve, reject)
+  );
 }

@@ -1,5 +1,3 @@
-import { Tree } from '@nrwl/devkit';
-
 import { normalize } from 'path';
 
 import { getGitFiles } from '../../workspace';
@@ -9,7 +7,16 @@ import { getVariantBuildConfigs } from './get-variant-build-configs';
 import { getWorkspace } from './get-workspace';
 import { AffectedConfig, dockerStandAloneScriptsPath } from './models';
 
-export function getAffectedProjects(host: Tree, config: AffectedConfig): Record<string, string[]> {
+/**
+ * Get affected docker stand-alone projects.
+ *
+ * @param config Affected configuration.
+ */
+export function getAffectedProjects(
+  config: AffectedConfig
+): Record<string, string[]> {
+  const { host } = config;
+
   const {
     affected: { defaultBase },
     projects,

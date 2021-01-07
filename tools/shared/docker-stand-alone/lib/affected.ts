@@ -1,17 +1,17 @@
-import { Tree } from '@nrwl/devkit';
-
-import { build as builder } from './build';
 import { buildAffected } from './build-affected';
 import { getAffectedProjects } from './get-affected-projects';
 import { AffectedConfig } from './models';
 
-export async function affected(
-  host: Tree,
-  config: AffectedConfig
-): Promise<() => boolean> {
-  const affectedProjects = getAffectedProjects(host, config);
+/**
+ * Asynchronously process affected docker stand-alone projects.
+ *
+ * @param host
+ * @param config
+ */
+export async function affected(config: AffectedConfig): Promise<() => boolean> {
+  const affectedProjects = getAffectedProjects(config);
 
-  const { build, commit, test, tag, push } = config;
+  const { host, build, commit, test, tag, push } = config;
 
   if (!build) {
     return () => {

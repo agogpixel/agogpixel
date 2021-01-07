@@ -10,15 +10,22 @@ import { Family } from './models';
  * @param family Image family.
  * @param scripts Script names.
  */
-export async function copyScripts(scriptsSourcePath: string, scriptsDestinationPath: string, family: Family, scripts: string[]) {
+export async function copyScripts(
+  scriptsSourcePath: string,
+  scriptsDestinationPath: string,
+  family: Family,
+  scripts: string[]
+) {
   mkdirSync(scriptsDestinationPath, { recursive: true });
 
-  return Promise.all(['shared-lib', `shared-${family}-lib`, ...scripts].map((name) => {
-    const basename = `${name}.sh`;
+  return Promise.all(
+    ['shared-lib', `shared-${family}-lib`, ...scripts].map((name) => {
+      const basename = `${name}.sh`;
 
-    const src = `${scriptsSourcePath}/${basename}`;
-    const dst = `${scriptsDestinationPath}/${basename}`;
+      const src = `${scriptsSourcePath}/${basename}`;
+      const dst = `${scriptsDestinationPath}/${basename}`;
 
-    return promises.copyFile(src, dst);
-  }));
+      return promises.copyFile(src, dst);
+    })
+  );
 }
