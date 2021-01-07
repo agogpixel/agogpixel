@@ -1,6 +1,7 @@
 import { Tree } from '@nrwl/devkit';
 
 import { build as builder } from './build';
+import { buildAffected } from './build-affected';
 import { getAffectedProjects } from './get-affected-projects';
 import { AffectedConfig } from './models';
 
@@ -19,54 +20,23 @@ export async function affected(
     };
   }
 
-  const affectedProjectsEntries = Object.entries(affectedProjects);
-
-  const buildResults = affectedProjectsEntries.reduce(
-    (results, [projectName]) => {
-      results[projectName] = {};
-      return results;
-    },
-    {} as Record<string, Record<string, boolean>>
-  );
-
-  let projectIndex = 0;
-
-  function projectRunner(resolve: (value?: () => void) => void) {
-    const [projectName, variants] = affectedProjectsEntries[projectIndex];
-
-    let variantIndex = 0;
-
-    function variantRunner(resolve: (value?: () => void) => void) {
-      const variant = variants[variantIndex];
-
-      function builderResultHandler(result = () => false): void {
-        buildResults[projectName][variant] = result();
-
-        if (++variantIndex >= variants.length) {
-          if (++projectIndex >= affectedProjectsEntries.length) {
-            resolve();
-            return;
-          }
-
-          projectRunner(resolve);
-          return;
-        }
-
-        variantRunner(resolve);
-      }
-
-      builder({ projectName, variant, buildArgs: {}, host }).then(
-        (result) => builderResultHandler(result),
-        () => builderResultHandler()
-      );
-    }
-
-    variantRunner(resolve);
+  if (!Object.keys(affectedProjects).length) {
+    return () => true;
   }
 
-  await new Promise<() => void>((resolve) => projectRunner(resolve));
+  const buildResults = await buildAffected(host, affectedProjects);
 
   console.log(`${JSON.stringify(buildResults, undefined, 2)}`);
 
-  return () => undefined;
+  // TODO if error-exit option enabled, bail...
+
+  // TODO commit copied scripts & push (without triggering ci)...
+
+  // TODO run container tests for successfully built images...
+
+  // TODO tag images that have been tested successfully....
+
+  // TODO push tagged images...
+
+  return () => true;
 }
