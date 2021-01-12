@@ -40,6 +40,6 @@ RUN apk --update-cache upgrade \
     && rm -rf /tmp/library-scripts
 
 # Monorepo specific capabilities.
-RUN npm install -g nx@11.0.15 typescript@~4.0.3
+RUN npm install -g nx@11.0.15 typescript@~4.0.3 ts-node@~9.1.1
 
 ENTRYPOINT ["entrypoint.sh"]

@@ -22,8 +22,7 @@
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode",
-		"terminal.integrated.shell.linux": "/bin/bash",
-		"typescript.tsdk": "node_modules/typescript/lib"
+		"terminal.integrated.shell.linux": "/bin/bash"
 	},
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [

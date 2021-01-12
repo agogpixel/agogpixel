@@ -16,12 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@agogpixel/ng-phaser": ["libs/shared/phaser/ng-phaser/src/index.ts"],
-      "@agogpixel/nx-docker-stand-alone": [
-        "libs/shared/workspace/nx-docker-stand-alone/src/index.ts"
-      ],
-      "@agogpixel/nx-workspace": [
-        "libs/shared/workspace/nx-workspace/src/index.ts"
-      ]
+      "@agogpixel/workspace": ["libs/workspace/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

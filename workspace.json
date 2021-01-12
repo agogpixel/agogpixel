@@ -37,6 +37,38 @@
           }
         }
       }
+    },
+    "workspace": {
+      "root": "libs/workspace",
+      "sourceRoot": "libs/workspace/src",
+      "projectType": "library",
+      "architect": {
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/workspace/**/*.ts"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/workspace"],
+          "options": {
+            "jestConfig": "libs/workspace/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "builder": "@nrwl/node:package",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/libs/workspace",
+            "tsConfig": "libs/workspace/tsconfig.lib.json",
+            "packageJson": "libs/workspace/package.json",
+            "main": "libs/workspace/src/index.ts",
+            "assets": ["libs/workspace/*.md"]
+          }
+        }
+      }
     }
   },
   "cli": {
