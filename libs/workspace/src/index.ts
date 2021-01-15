@@ -5,5 +5,7 @@
  * @packageDocumentation
  * @module workspace
  */
-export * as git from './lib/git';
-export * as schematics from './lib/schematics';
+export * from './lib/command';
+export * from './lib/docker';
+export * from './lib/git';
+export * from './lib/schematics';

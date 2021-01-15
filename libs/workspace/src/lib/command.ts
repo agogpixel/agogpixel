@@ -1,3 +1,10 @@
+/**
+ * Command library.
+ * @copyright Copyright © 2021, AgogPixel - All rights reserved.
+ * @author Tristan Bonsor <kidthales@agogpixel.com>
+ * @packageDocumentation
+ * @module workspace/command
+ */
 import {
   ChildProcess,
   spawn,
@@ -10,115 +17,362 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 import { maxBufferSize } from './shared';
 
+/**
+ *
+ */
 export enum OptionArgumentSeparator {
   None = '',
   Space = ' ',
   Equals = '=',
 }
 
-export interface OptionConfig {
+/**
+ *
+ */
+export enum OptionArgumentRequirement {
+  None,
+  Optional,
+  Required,
+}
+
+/**
+ *
+ */
+export enum OptionOccurrence {
+  Single,
+  Multiple,
+}
+
+/**
+ *
+ */
+interface OptionConfig {
+  /**
+   *
+   */
   option: string;
+
+  /**
+   *
+   */
+  occurrence?: OptionOccurrence;
+
+  /**
+   *
+   */
   seperator?: OptionArgumentSeparator;
+
+  /**
+   *
+   */
+  argRequirement?: OptionArgumentRequirement;
 }
 
-export interface CommandWithOptions {
+/**
+ *
+ */
+type OptionConfigRecord = Record<string, OptionConfig>;
+
+/**
+ *
+ */
+type Option = (arg?: string) => string[];
+
+/**
+ *
+ */
+type OptionAccessor<
+  A extends OptionConfigRecord,
+  B extends OptionConfigRecord,
+  C extends OptionConfigRecord,
+  O = (arg?: string) => Command<A, B, C>
+> = {
+  [p in keyof (A & B & C)]: O;
+};
+
+/**
+ *
+ */
+interface CommandConfig<T extends OptionConfigRecord> {
+  /**
+   *
+   */
   command: string;
-  options?: OptionConfig[];
+
+  /**
+   *
+   */
+  options?: T;
 }
 
-export interface CommandConfig extends CommandWithOptions {
-  subCommand?: CommandWithOptions;
-}
+/**
+ *
+ */
+class CommandCache {
+  /**
+   *
+   */
+  public array: string[];
 
-export class Command {
-  private static reduceOptions(options: OptionConfig[] = []): OptionsRecord {
-    return options.reduce((opts, config) => {
-      opts[config.option] = optionFactory(config);
-      return opts;
-    }, {});
+  /**
+   *
+   */
+  public string: string;
+
+  /**
+   *
+   */
+  public clear(): void {
+    this.array = undefined;
+    this.string = undefined;
   }
+}
 
-  private static addOption(
-    src: OptionsRecord,
-    dst: Option[],
-    opt: string,
-    arg?: string,
-    sub?: boolean
-  ): void {
-    const optFn = src[opt];
+/**
+ *
+ */
+export class Command<
+  A extends OptionConfigRecord,
+  B extends OptionConfigRecord = {},
+  C extends OptionConfigRecord = {}
+> {
+  /**
+   *
+   * @param command
+   * @param configA
+   * @param configB
+   * @param configC
+   */
+  private static optionAccessorFactory<
+    A extends OptionConfigRecord,
+    B extends OptionConfigRecord,
+    C extends OptionConfigRecord
+  >(
+    command: Command<A, B, C>,
+    configA: CommandConfig<A>,
+    configB: CommandConfig<B>,
+    configC: CommandConfig<C>
+  ): OptionAccessor<A, B, C> {
+    const accessor: Record<string, (arg?: string) => Command<A, B, C>> = {};
 
-    if (!optFn) {
-      throw new Error(`${sub ? 'Subcommand' : ''} Option: '${opt}' not found.`);
+    Command.bindOptionAccessor(
+      accessor,
+      command,
+      configA.command,
+      configA.options
+    );
+
+    if (configB) {
+      Command.bindOptionAccessor(
+        accessor,
+        command,
+        configB.command,
+        configB.options || ({} as B)
+      );
     }
 
-    dst.push(optFn.bind(Command, arg));
+    if (configC) {
+      Command.bindOptionAccessor(
+        accessor,
+        command,
+        configC.command,
+        configC.options || ({} as C)
+      );
+    }
+
+    return accessor as OptionAccessor<A, B, C>;
   }
 
-  private static optionsToArray(options: Option[]): string[] {
-    return options.reduce((opts, opt) => opts.concat(opt()), []);
+  /**
+   *
+   * @param accessor
+   * @param command
+   * @param commandName
+   * @param config
+   */
+  private static bindOptionAccessor<
+    A extends OptionConfigRecord,
+    B extends OptionConfigRecord,
+    C extends OptionConfigRecord
+  >(
+    accessor: Record<string, (arg?: string) => Command<A, B, C>>,
+    command: Command<A, B, C>,
+    commandName: string,
+    config: A | B | C
+  ): void {
+    command.currentOptions[commandName] = [];
+
+    Object.entries(config).forEach(([name, conf]) => {
+      const option = Command.optionFactory(conf);
+
+      accessor[name] = (arg?: string) => {
+        command.currentOptions[commandName].push(option.bind(arg));
+        command.cache.clear();
+        return command;
+      };
+    });
   }
 
-  private readonly command = this.config.command;
+  /**
+   *
+   * @param config
+   */
+  private static optionFactory(config: OptionConfig): Option {
+    const { option: opt } = config;
 
-  private readonly options = Command.reduceOptions(this.config.options);
+    let { occurrence, seperator, argRequirement } = config;
 
-  private readonly subCommand = this.config.subCommand?.command;
+    occurrence = occurrence || OptionOccurrence.Single;
+    seperator = seperator || OptionArgumentSeparator.None;
+    argRequirement = argRequirement || OptionArgumentRequirement.None;
 
-  private readonly subOptions = Command.reduceOptions(
-    this.config.subCommand.options
+    let counter = 0;
+
+    return function option(arg?: string): string[] {
+      if (counter++ && occurrence === OptionOccurrence.Single) {
+        throw new Error();
+      } else if (
+        arg === undefined &&
+        argRequirement === OptionArgumentRequirement.Required
+      ) {
+        throw new Error();
+      } else if (
+        arg !== undefined &&
+        argRequirement === OptionArgumentRequirement.None
+      ) {
+        throw new Error();
+      }
+
+      arg = arg ? arg.trim() : '';
+
+      return arg
+        ? seperator === OptionArgumentSeparator.Space
+          ? [opt, arg]
+          : [`${opt}${seperator}${arg}`]
+        : [opt];
+    };
+  }
+
+  /**
+   *
+   */
+  public readonly option: OptionAccessor<
+    A,
+    B,
+    C
+  > = Command.optionAccessorFactory(
+    this,
+    this.configA,
+    this.configB,
+    this.configC
   );
 
+  /**
+   *
+   */
   private readonly cache = new CommandCache();
 
-  private currentOptions: Option[] = [];
+  /**
+   *
+   */
+  private readonly commands: string[] = [];
 
-  private currentSubOptions: Option[] = [];
+  /**
+   *
+   */
+  private readonly currentOptions: Record<string, Option[]> = {};
 
+  /**
+   *
+   */
+  private readonly currentCommandParameters: Record<string, string[]> = {};
+
+  /**
+   *
+   */
   private currentParameters: string[] = [];
 
-  public constructor(private readonly config: CommandConfig) {}
+  /**
+   *
+   * @param configA
+   * @param configB
+   * @param configC
+   */
+  public constructor(
+    private readonly configA: CommandConfig<A>,
+    private readonly configB?: CommandConfig<B>,
+    private readonly configC?: CommandConfig<C>
+  ) {
+    this.commands.push(
+      configA.command,
+      configB?.command || '',
+      configC?.command || ''
+    );
+  }
 
-  public option(opt: string, arg?: string): this {
-    Command.addOption(this.options, this.currentOptions, opt, arg);
+  /**
+   *
+   */
+  public reset(): this {
+    Object.keys(this.currentOptions).forEach(
+      (key) => (this.currentOptions[key] = [])
+    );
+    Object.keys(this.currentCommandParameters).forEach(
+      (key) => (this.currentCommandParameters[key] = [])
+    );
+
+    this.currentParameters = [];
     this.cache.clear();
+
     return this;
   }
 
-  public subOption(opt: string, arg?: string): this {
-    Command.addOption(this.subOptions, this.currentSubOptions, opt, arg, true);
-    this.cache.clear();
-    return this;
-  }
-
-  public parameter(param: string): this {
+  /**
+   *
+   * @param param
+   * @param command
+   */
+  public parameter(param: string, command?: string): this {
     const sanitized = param.trim();
 
     if (sanitized) {
-      this.currentParameters.push(param);
+      if (command === undefined || !this.commands.includes(command)) {
+        this.currentParameters.push(param);
+      } else {
+        if (!this.currentCommandParameters[command]) {
+          this.currentCommandParameters[command] = [];
+        }
+
+        this.currentCommandParameters[command].push(param);
+      }
+
       this.cache.clear();
     }
 
     return this;
   }
 
-  public reset(): this {
-    this.currentOptions = [];
-    this.currentSubOptions = [];
-    this.currentParameters = [];
-    this.cache.clear();
-    return this;
-  }
-
+  /**
+   *
+   * @param options
+   */
   public spawn(options: SpawnOptions): CommandProcess {
     const [command, ...args] = this.toArray();
     return new CommandProcess(spawn(command, args, options));
   }
 
+  /**
+   *
+   * @param options
+   */
   public spawnSync(options: SpawnSyncOptions): CommandProcessSnapshot {
     const [command, ...args] = this.toArray();
     return new CommandProcessSnapshot(spawnSync(command, args, options));
   }
 
+  /**
+   *
+   */
   public toArray(): string[] {
     const cache = this.cache;
 
@@ -126,16 +380,32 @@ export class Command {
       return [...cache.array];
     }
 
-    const arr = (cache.array = [this.command].concat(
-      Command.optionsToArray(this.currentOptions),
-      this.subCommand ? [this.subCommand] : [],
-      Command.optionsToArray(this.currentSubOptions),
-      this.currentParameters
-    ));
+    const arr: string[] = [];
+
+    this.commands.forEach((commandName) => {
+      arr.push(commandName);
+
+      if (this.currentOptions[commandName]) {
+        this.currentOptions[commandName].forEach((opt) => {
+          arr.push(...opt());
+        });
+      }
+
+      if (this.currentCommandParameters[commandName]) {
+        this.currentCommandParameters[commandName].forEach((param) => {
+          arr.push(param);
+        });
+      }
+    });
+
+    arr.push(...this.currentParameters);
 
     return [...arr];
   }
 
+  /**
+   *
+   */
   public toString(): string {
     const cache = this.cache;
 
@@ -149,21 +419,57 @@ export class Command {
   }
 }
 
-export class CommandProcess {
-  public static readonly maxCacheBuffer = 1024 * 10000;
+/**
+ *
+ */
+class CommandProcessCache {
+  /**
+   *
+   */
+  public readonly stdio: string[] = [];
 
+  /**
+   *
+   */
+  public readonly stdout = Buffer.alloc(maxBufferSize);
+
+  /**
+   *
+   */
+  public readonly stderr = Buffer.alloc(maxBufferSize);
+}
+
+/**
+ *
+ */
+export class CommandProcess {
+  /**
+   *
+   */
   private readonly codeSubject$ = new BehaviorSubject<number>(undefined);
 
+  /**
+   *
+   */
   private readonly signalSubject$ = new BehaviorSubject<NodeJS.Signals>(
     undefined
   );
 
+  /**
+   *
+   */
   private readonly errorSubject$ = new BehaviorSubject<Error>(undefined);
 
+  /**
+   *
+   */
   private readonly snapshotSubject$ = new BehaviorSubject<
     CommandProcessSnapshot
   >(undefined);
 
+  /**
+   *
+   */
   public readonly stdout$ = new Observable<Buffer | string>((observer) => {
     this.childProcess.stdout
       .on('data', (chunk) => observer.next(chunk))
@@ -171,6 +477,9 @@ export class CommandProcess {
       .on('error', (error) => observer.error(error));
   });
 
+  /**
+   *
+   */
   public readonly stderr$ = new Observable<Buffer | string>((observer) => {
     this.childProcess.stderr
       .on('data', (chunk) => observer.next(chunk))
@@ -178,8 +487,15 @@ export class CommandProcess {
       .on('error', (error) => observer.error(error));
   });
 
+  /**
+   *
+   */
   private readonly cache = new CommandProcessCache();
 
+  /**
+   *
+   * @param childProcess
+   */
   public constructor(public readonly childProcess: ChildProcess) {
     childProcess.stdout.on('data', (chunk) => {
       const cache = this.cache;
@@ -205,30 +521,68 @@ export class CommandProcess {
       });
   }
 
+  /**
+   *
+   */
   public get code$(): Observable<number> {
     return this.codeSubject$;
   }
 
+  /**
+   *
+   */
   public get code(): number {
     return this.codeSubject$.value;
   }
 
+  /**
+   *
+   */
   public get signal$(): Observable<NodeJS.Signals> {
     return this.signalSubject$;
   }
 
+  /**
+   *
+   */
   public get signal(): NodeJS.Signals {
     return this.signalSubject$.value;
   }
 
+  /**
+   *
+   */
   public get error$(): Observable<Error> {
     return this.errorSubject$;
   }
 
+  /**
+   *
+   */
   public get error(): Error {
     return this.errorSubject$.value;
   }
 
+  /**
+   *
+   */
+  public get snapshot$(): Observable<CommandProcessSnapshot> {
+    return this.snapshotSubject$;
+  }
+
+  /**
+   *
+   */
+  public get snapshot(): CommandProcessSnapshot {
+    return this.snapshotSubject$.value;
+  }
+
+  /**
+   *
+   * @param status
+   * @param signal
+   * @param error
+   */
   private createSnapshot(
     status: number | null,
     signal: NodeJS.Signals | null,
@@ -248,8 +602,35 @@ export class CommandProcess {
   }
 }
 
+/**
+ *
+ */
+class CommandProcessSnapshotCache {
+  /**
+   *
+   */
+  public sanitizedOutput: string[];
+
+  /**
+   *
+   */
+  public sanitizedStdout: string[];
+
+  /**
+   *
+   */
+  public sanitizedStderr: string[];
+}
+
+/**
+ *
+ */
 export class CommandProcessSnapshot
   implements SpawnSyncReturns<Buffer | string> {
+  /**
+   *
+   * @param str
+   */
   public static sanitzeString(str: string): string[] {
     return str
       .split('\n')
@@ -257,40 +638,71 @@ export class CommandProcessSnapshot
       .filter((s) => s.length > 0);
   }
 
+  /**
+   *
+   */
   private readonly cache = new CommandProcessSnapshotCache();
 
+  /**
+   *
+   * @param spawnSyncReturns
+   */
   public constructor(
     private readonly spawnSyncReturns: SpawnSyncReturns<Buffer | string>
   ) {}
 
+  /**
+   *
+   */
   public get pid(): number {
     return this.spawnSyncReturns.pid;
   }
 
+  /**
+   *
+   */
   public get output(): string[] {
     return this.spawnSyncReturns.output;
   }
 
+  /**
+   *
+   */
   public get stdout(): Buffer | string {
     return this.spawnSyncReturns.stdout;
   }
 
+  /**
+   *
+   */
   public get stderr(): Buffer | string {
     return this.spawnSyncReturns.stderr;
   }
 
+  /**
+   *
+   */
   public get status(): number {
     return this.spawnSyncReturns.status;
   }
 
+  /**
+   *
+   */
   public get signal(): NodeJS.Signals {
     return this.spawnSyncReturns.signal;
   }
 
+  /**
+   *
+   */
   public get error(): Error {
     return this.spawnSyncReturns.error;
   }
 
+  /**
+   *
+   */
   public get sanitizedOutput(): string[] {
     const cache = this.cache;
 
@@ -307,6 +719,9 @@ export class CommandProcessSnapshot
     return [...out];
   }
 
+  /**
+   *
+   */
   public get sanitizedStdout(): string[] {
     const cache = this.cache;
 
@@ -321,6 +736,9 @@ export class CommandProcessSnapshot
     return [...out];
   }
 
+  /**
+   *
+   */
   public get sanitizedStderr(): string[] {
     const cache = this.cache;
 
@@ -334,54 +752,4 @@ export class CommandProcessSnapshot
 
     return [...out];
   }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Internal API
-////////////////////////////////////////////////////////////////////////////////
-
-type Option = (arg?: string) => string[];
-
-type OptionsRecord = Record<string, Option>;
-
-function optionFactory(config: OptionConfig): Option {
-  const { option: opt } = config;
-
-  let { seperator } = config;
-
-  seperator = seperator || OptionArgumentSeparator.None;
-
-  return function option(arg?: string): string[] {
-    arg = arg ? arg.trim() : '';
-
-    return arg
-      ? seperator === OptionArgumentSeparator.Space
-        ? [opt, arg]
-        : [`${opt}${seperator}${arg}`]
-      : [opt];
-  };
-}
-
-class CommandCache {
-  public array: string[];
-  public string: string;
-
-  public clear(): void {
-    this.array = undefined;
-    this.string = undefined;
-  }
-}
-
-class CommandProcessCache {
-  private static readonly maxBufferSize = maxBufferSize;
-
-  public readonly stdio: string[] = [];
-  public readonly stdout = Buffer.alloc(CommandProcessCache.maxBufferSize);
-  public readonly stderr = Buffer.alloc(CommandProcessCache.maxBufferSize);
-}
-
-class CommandProcessSnapshotCache {
-  public sanitizedOutput: string[];
-  public sanitizedStdout: string[];
-  public sanitizedStderr: string[];
 }
