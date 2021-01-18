@@ -9,7 +9,7 @@ import { gitCommandOptions } from './git';
 /**
  * @see GitDiffDocumentation {@link https://git-scm.com/docs/git-diff}
  */
-export const gitDiffCommandOptions = {
+const gitDiffCommandOptions = {
   patch: { option: '--patch' },
   noPatch: { option: '--no-patch' },
   unified: {

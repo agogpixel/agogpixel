@@ -9,7 +9,7 @@ import { gitCommandOptions } from './git';
 /**
  * @see GitAmDocumentation {@link https://git-scm.com/docs/git-am}
  */
-export const gitAmCommandOptions = {
+const gitAmCommandOptions = {
   signoff: { option: '--signoff' },
   keep: { option: '--keep' },
   keepNonPatch: { option: '--keep-non-patch' },

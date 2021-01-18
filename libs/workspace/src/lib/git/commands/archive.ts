@@ -9,7 +9,7 @@ import { gitCommandOptions } from './git';
 /**
  * @see GitArchiveDocumentation {@link https://git-scm.com/docs/git-archive}
  */
-export const gitArchiveCommandOptions = {
+const gitArchiveCommandOptions = {
   format: {
     option: '--format',
     seperator: OptionArgumentSeparator.Equals,

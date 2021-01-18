@@ -9,7 +9,7 @@ import { gitCommandOptions } from './git';
 /**
  * @see GitDiffIndexDocumentation {@link https://git-scm.com/docs/git-diff-index}
  */
-export const gitDiffIndexCommandOptions = {
+const gitDiffIndexCommandOptions = {
   patch: { option: '--patch' },
   noPatch: { option: '--no-patch' },
   unified: {

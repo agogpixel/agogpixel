@@ -9,7 +9,7 @@ import { gitCommandOptions } from './git';
 /**
  * @see GitRevParseDocumentation {@link https://git-scm.com/docs/git-rev-parse}
  */
-export const gitRevParseCommandOptions = {
+const gitRevParseCommandOptions = {
   parseopt: { option: '--parseopt' },
   sqQuote: { option: '--sq-quote' },
   keepDashdash: { option: '--keep-dashdash' },

@@ -14,13 +14,13 @@ export const gitCommandOptions = {
   cwd: {
     option: '-C',
     seperator: OptionArgumentSeparator.Space,
-    occurence: OptionOccurrence.Multiple,
+    occurrence: OptionOccurrence.Multiple,
     argRequired: OptionArgumentRequirement.Required,
   },
   config: {
     option: '-c',
     seperator: OptionArgumentSeparator.Space,
-    occurence: OptionOccurrence.Multiple,
+    occurrence: OptionOccurrence.Multiple,
     argRequired: OptionArgumentRequirement.Required,
   },
   execPath: {

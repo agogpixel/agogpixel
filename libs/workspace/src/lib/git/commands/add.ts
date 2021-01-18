@@ -9,7 +9,7 @@ import { gitCommandOptions } from './git';
 /**
  * @see GitAddDocumentation {@link https://git-scm.com/docs/git-add}
  */
-export const gitAddCommandOptions = {
+const gitAddCommandOptions = {
   dryRun: { option: '--dry-run' },
   verbose: { option: '--verbose' },
   force: { option: '--force' },

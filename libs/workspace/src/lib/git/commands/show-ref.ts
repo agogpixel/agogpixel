@@ -9,7 +9,7 @@ import { gitCommandOptions } from './git';
 /**
  * @see GitShowRefDocumentation {@link https://git-scm.com/docs/git-show-ref}
  */
-export const gitShowRefCommandOptions = {
+const gitShowRefCommandOptions = {
   head: { option: '--head' },
   heads: { option: '--heads' },
   tags: { option: '--tags' },

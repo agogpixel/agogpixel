@@ -5,7 +5,7 @@ import { gitCommandOptions } from './git';
 /**
  * @see GitMergeBaseDocumentation {@link https://git-scm.com/docs/git-merge-base}
  */
-export const gitMergeBaseCommandOptions = {
+const gitMergeBaseCommandOptions = {
   all: { option: '--all' },
   octopus: { option: '--octopus' },
   independent: { option: '--independent' },

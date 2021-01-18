@@ -9,7 +9,7 @@ import { gitCommandOptions } from './git';
 /**
  * @see GitLsFilesDocumentation {@link https://git-scm.com/docs/git-ls-files}
  */
-export const gitLsFilesCommandOptions = {
+const gitLsFilesCommandOptions = {
   cached: { option: '--cached' },
   deleted: { option: '--deleted' },
   modified: { option: '--modified' },
