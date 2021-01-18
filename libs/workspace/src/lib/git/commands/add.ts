@@ -43,18 +43,14 @@ export const gitAddCommandOptions = {
  */
 export class GitAddCommand extends CommandBuilder {
   public readonly command = {
-    git: GitAddCommand.commandAccessorFactory<typeof gitCommandOptions, GitAddCommand>(
-      'git',
-      'git',
-      gitCommandOptions,
-      this
-    ),
-    add: GitAddCommand.commandAccessorFactory<typeof gitAddCommandOptions, GitAddCommand>(
-      'add',
-      'add',
-      gitAddCommandOptions,
-      this
-    ),
+    git: GitAddCommand.commandAccessorFactory<
+      typeof gitCommandOptions,
+      GitAddCommand
+    >('git', 'git', gitCommandOptions, this),
+    add: GitAddCommand.commandAccessorFactory<
+      typeof gitAddCommandOptions,
+      GitAddCommand
+    >('add', 'add', gitAddCommandOptions, this),
   };
 
   public readonly option = this.command.add.option;

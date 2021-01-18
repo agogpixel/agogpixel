@@ -123,7 +123,7 @@ export function gitHasUntrackedFiles(): boolean {
  */
 export function gitGetUntrackedFiles(): string[] {
   return new GitLsFilesCommand().option
-    .other()
+    .others()
     .option.excludeStandard()
     .spawnSync({ maxBuffer }).sanitizedStdout;
 }

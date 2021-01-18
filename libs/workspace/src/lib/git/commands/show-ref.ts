@@ -1,12 +1,37 @@
-import { CommandBuilder } from '../../command-builder';
+import {
+  CommandBuilder,
+  OptionArgumentRequirement,
+  OptionArgumentSeparator,
+} from '../../command-builder';
 
 import { gitCommandOptions } from './git';
 
 /**
- * TODO: Options...
  * @see GitShowRefDocumentation {@link https://git-scm.com/docs/git-show-ref}
  */
-export const gitShowRefCommandOptions = {};
+export const gitShowRefCommandOptions = {
+  head: { option: '--head' },
+  heads: { option: '--heads' },
+  tags: { option: '--tags' },
+  dereference: { option: '--dereference' },
+  hash: {
+    option: '--hash',
+    seperator: OptionArgumentSeparator.Equals,
+    argRequired: OptionArgumentRequirement.Optional,
+  },
+  verify: { option: '--verify' },
+  abbrev: {
+    option: '--abbrev',
+    seperator: OptionArgumentSeparator.Equals,
+    argRequired: OptionArgumentRequirement.Optional,
+  },
+  quiet: { option: '--quiet' },
+  excludeExisting: {
+    option: '--exclude-existing',
+    seperator: OptionArgumentSeparator.Equals,
+    argRequired: OptionArgumentRequirement.Optional,
+  },
+};
 
 /**
  * @see GitShowRefDocumentation {@link https://git-scm.com/docs/git-show-ref}

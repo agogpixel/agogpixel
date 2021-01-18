@@ -3,10 +3,15 @@ import { CommandBuilder } from '../../command-builder';
 import { gitCommandOptions } from './git';
 
 /**
- * TODO: Options...
  * @see GitMergeBaseDocumentation {@link https://git-scm.com/docs/git-merge-base}
  */
-export const gitMergeBaseCommandOptions = {};
+export const gitMergeBaseCommandOptions = {
+  all: { option: '--all' },
+  octopus: { option: '--octopus' },
+  independent: { option: '--independent' },
+  isAncestor: { option: '--is-ancestor' },
+  forkPoint: { option: '--fork-point' },
+};
 
 /**
  * @see GitMergeBaseDocumentation {@link https://git-scm.com/docs/git-merge-base}
