@@ -1,9 +1,9 @@
 /**
- * Command library.
+ * Command builder library.
  * @copyright Copyright © 2021, AgogPixel - All rights reserved.
  * @author Tristan Bonsor <kidthales@agogpixel.com>
  * @packageDocumentation
- * @module workspace/command
+ * @module workspace/command-builder
  */
 import {
   ChildProcess,
@@ -71,29 +71,37 @@ interface OptionConfig {
 /**
  *
  */
-type OptionConfigRecord = Record<string, OptionConfig>;
+interface OptionMethods {
+  /**
+   *
+   */
+  validate: (arg?: string) => void;
+
+  /**
+   *
+   */
+  transform: (arg?: string) => string[];
+
+  /**
+   *
+   */
+  increment: () => number;
+}
 
 /**
  *
  */
-type Option = (arg?: string) => string[];
-
-/**
- *
- */
-type OptionAccessor<
-  A extends OptionConfigRecord,
-  B extends OptionConfigRecord,
-  C extends OptionConfigRecord,
-  O = (arg?: string) => Command<A, B, C>
-> = {
-  [p in keyof (A & B & C)]: O;
+type OptionAccessor<T, U> = {
+  /**
+   *
+   */
+  [k in keyof T]: (arg?: string) => U;
 };
 
 /**
  *
  */
-interface CommandConfig<T extends OptionConfigRecord> {
+type CommandAccessor<T, U> = {
   /**
    *
    */
@@ -102,13 +110,73 @@ interface CommandConfig<T extends OptionConfigRecord> {
   /**
    *
    */
-  options?: T;
+  option: OptionAccessor<T, U>;
+};
+
+/**
+ *
+ * @param config
+ */
+function optionFactory(config: OptionConfig): OptionMethods {
+  const { option: opt } = config;
+
+  let { occurrence, seperator, argRequirement } = config;
+
+  occurrence = occurrence || OptionOccurrence.Single;
+  seperator = seperator || OptionArgumentSeparator.None;
+  argRequirement = argRequirement || OptionArgumentRequirement.None;
+
+  let counter = 0;
+
+  return {
+    /**
+     *
+     * @param arg
+     */
+    validate: (arg?: string) => {
+      const missingArg =
+        arg === undefined &&
+        argRequirement === OptionArgumentRequirement.Required;
+      const tooManyArgs =
+        arg !== undefined && argRequirement === OptionArgumentRequirement.None;
+      const duplicateOption = counter && occurrence === OptionOccurrence.Single;
+
+      if (missingArg || tooManyArgs || duplicateOption) {
+        const message = missingArg
+          ? 'Argument missing'
+          : tooManyArgs
+          ? 'Too many arguments'
+          : 'Option occurs more than once';
+
+        throw new Error(message);
+      }
+    },
+
+    /**
+     *
+     * @param arg
+     */
+    transform: (arg?: string) => {
+      arg = arg ? arg.trim() : '';
+
+      return arg
+        ? seperator === OptionArgumentSeparator.Space
+          ? [opt, arg]
+          : [`${opt}${seperator}${arg}`]
+        : [opt];
+    },
+
+    /**
+     *
+     */
+    increment: () => ++counter,
+  };
 }
 
 /**
  *
  */
-class CommandCache {
+class CommandBuilderCache {
   /**
    *
    */
@@ -131,197 +199,118 @@ class CommandCache {
 /**
  *
  */
-export class Command<
-  A extends OptionConfigRecord,
-  B extends OptionConfigRecord = {},
-  C extends OptionConfigRecord = {}
-> {
+export abstract class CommandBuilder {
   /**
    *
-   * @param command
-   * @param configA
-   * @param configB
-   * @param configC
-   */
-  private static optionAccessorFactory<
-    A extends OptionConfigRecord,
-    B extends OptionConfigRecord,
-    C extends OptionConfigRecord
-  >(
-    command: Command<A, B, C>,
-    configA: CommandConfig<A>,
-    configB: CommandConfig<B>,
-    configC: CommandConfig<C>
-  ): OptionAccessor<A, B, C> {
-    const accessor: Record<string, (arg?: string) => Command<A, B, C>> = {};
-
-    Command.bindOptionAccessor(
-      accessor,
-      command,
-      configA.command,
-      configA.options
-    );
-
-    if (configB) {
-      Command.bindOptionAccessor(
-        accessor,
-        command,
-        configB.command,
-        configB.options || ({} as B)
-      );
-    }
-
-    if (configC) {
-      Command.bindOptionAccessor(
-        accessor,
-        command,
-        configC.command,
-        configC.options || ({} as C)
-      );
-    }
-
-    return accessor as OptionAccessor<A, B, C>;
-  }
-
-  /**
-   *
-   * @param accessor
    * @param command
    * @param commandName
-   * @param config
+   * @param options
+   * @param builder
    */
-  private static bindOptionAccessor<
-    A extends OptionConfigRecord,
-    B extends OptionConfigRecord,
-    C extends OptionConfigRecord
-  >(
-    accessor: Record<string, (arg?: string) => Command<A, B, C>>,
-    command: Command<A, B, C>,
+  protected static commandAccessorFactory<T, U>(
+    command: string,
     commandName: string,
-    config: A | B | C
-  ): void {
-    command.currentOptions[commandName] = [];
-
-    Object.entries(config).forEach(([name, conf]) => {
-      const option = Command.optionFactory(conf);
-
-      accessor[name] = (arg?: string) => {
-        command.currentOptions[commandName].push(option.bind(arg));
-        command.cache.clear();
-        return command;
-      };
-    });
-  }
-
-  /**
-   *
-   * @param config
-   */
-  private static optionFactory(config: OptionConfig): Option {
-    const { option: opt } = config;
-
-    let { occurrence, seperator, argRequirement } = config;
-
-    occurrence = occurrence || OptionOccurrence.Single;
-    seperator = seperator || OptionArgumentSeparator.None;
-    argRequirement = argRequirement || OptionArgumentRequirement.None;
-
-    let counter = 0;
-
-    return function option(arg?: string): string[] {
-      if (counter++ && occurrence === OptionOccurrence.Single) {
-        throw new Error();
-      } else if (
-        arg === undefined &&
-        argRequirement === OptionArgumentRequirement.Required
-      ) {
-        throw new Error();
-      } else if (
-        arg !== undefined &&
-        argRequirement === OptionArgumentRequirement.None
-      ) {
-        throw new Error();
-      }
-
-      arg = arg ? arg.trim() : '';
-
-      return arg
-        ? seperator === OptionArgumentSeparator.Space
-          ? [opt, arg]
-          : [`${opt}${seperator}${arg}`]
-        : [opt];
+    options: { [k in keyof T]: OptionConfig },
+    builder: U
+  ): CommandAccessor<T, U> {
+    return {
+      command,
+      option: CommandBuilder.optionAccessorFactory(
+        commandName,
+        options,
+        builder
+      ),
     };
   }
 
   /**
    *
+   * @param commandName
+   * @param options
+   * @param builder
    */
-  public readonly option: OptionAccessor<
-    A,
-    B,
-    C
-  > = Command.optionAccessorFactory(
-    this,
-    this.configA,
-    this.configB,
-    this.configC
-  );
+  private static optionAccessorFactory<T, U>(
+    commandName: string,
+    options: { [k in keyof T]: OptionConfig },
+    builder: U
+  ): OptionAccessor<T, U> {
+    const commandBuilder = (builder as unknown) as CommandBuilder;
+    const accessor = {};
 
-  /**
-   *
-   */
-  private readonly cache = new CommandCache();
+    // Create option queue for command name.
+    commandBuilder.currentOptions[commandName] = [];
 
-  /**
-   *
-   */
-  private readonly commands: string[] = [];
+    Object.entries<OptionConfig>(options).forEach(
+      ([optionName, optionConfig]) => {
+        const { validate, transform, increment } = optionFactory(optionConfig);
 
-  /**
-   *
-   */
-  private readonly currentOptions: Record<string, Option[]> = {};
+        accessor[optionName] = (arg?: string) => {
+          try {
+            validate(arg);
+          } catch (e) {
+            throw new Error(
+              `OptionAccessorError: ${optionName}: ${(e as Error).message}`
+            );
+          }
 
-  /**
-   *
-   */
-  private readonly currentCommandParameters: Record<string, string[]> = {};
+          const transformedOption = transform(arg);
 
-  /**
-   *
-   */
-  private currentParameters: string[] = [];
+          // Add option to queue for command name.
+          commandBuilder.currentOptions[commandName].concat(transformedOption);
 
-  /**
-   *
-   * @param configA
-   * @param configB
-   * @param configC
-   */
-  public constructor(
-    private readonly configA: CommandConfig<A>,
-    private readonly configB?: CommandConfig<B>,
-    private readonly configC?: CommandConfig<C>
-  ) {
-    this.commands.push(
-      configA.command,
-      configB?.command || '',
-      configC?.command || ''
+          // Clear cache.
+          commandBuilder.cache.clear();
+
+          increment();
+
+          return builder;
+        };
+      }
     );
+
+    return accessor as OptionAccessor<T, U>;
   }
 
   /**
    *
    */
-  public reset(): this {
-    Object.keys(this.currentOptions).forEach(
-      (key) => (this.currentOptions[key] = [])
-    );
-    Object.keys(this.currentCommandParameters).forEach(
-      (key) => (this.currentCommandParameters[key] = [])
-    );
+  public abstract readonly command: Record<
+    string,
+    CommandAccessor<{}, CommandBuilder>
+  >;
 
-    this.currentParameters = [];
+  /**
+   *
+   */
+  public abstract readonly option: OptionAccessor<{}, CommandBuilder>;
+
+  /**
+   *
+   */
+  protected abstract readonly commandIndex: string[];
+
+  /**
+   *
+   */
+  private readonly currentOptions: Record<string, string[]> = {};
+
+  /**
+   *
+   */
+  private readonly currentParameters: string[] = [];
+
+  /**
+   *
+   */
+  private readonly cache = new CommandBuilderCache();
+
+  /**
+   *
+   */
+  public reset(): this {
+    Object.values(this.currentOptions).forEach((q) => (q.length = 0));
+
+    this.currentParameters.length = 0;
     this.cache.clear();
 
     return this;
@@ -330,22 +319,12 @@ export class Command<
   /**
    *
    * @param param
-   * @param command
    */
-  public parameter(param: string, command?: string): this {
+  public parameter(param: string): this {
     const sanitized = param.trim();
 
     if (sanitized) {
-      if (command === undefined || !this.commands.includes(command)) {
-        this.currentParameters.push(param);
-      } else {
-        if (!this.currentCommandParameters[command]) {
-          this.currentCommandParameters[command] = [];
-        }
-
-        this.currentCommandParameters[command].push(param);
-      }
-
+      this.currentParameters.push(sanitized);
       this.cache.clear();
     }
 
@@ -382,23 +361,15 @@ export class Command<
 
     const arr: string[] = [];
 
-    this.commands.forEach((commandName) => {
-      arr.push(commandName);
+    this.commandIndex.forEach((commandName) => {
+      arr.push(this.command[commandName].command);
 
       if (this.currentOptions[commandName]) {
-        this.currentOptions[commandName].forEach((opt) => {
-          arr.push(...opt());
-        });
-      }
-
-      if (this.currentCommandParameters[commandName]) {
-        this.currentCommandParameters[commandName].forEach((param) => {
-          arr.push(param);
-        });
+        arr.concat(this.currentOptions[commandName].filter(Boolean));
       }
     });
 
-    arr.push(...this.currentParameters);
+    arr.concat(this.currentParameters.filter(Boolean));
 
     return [...arr];
   }
@@ -442,7 +413,7 @@ class CommandProcessCache {
 /**
  *
  */
-export class CommandProcess {
+class CommandProcess {
   /**
    *
    */
@@ -625,8 +596,7 @@ class CommandProcessSnapshotCache {
 /**
  *
  */
-export class CommandProcessSnapshot
-  implements SpawnSyncReturns<Buffer | string> {
+class CommandProcessSnapshot implements SpawnSyncReturns<Buffer | string> {
   /**
    *
    * @param str

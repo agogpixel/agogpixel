@@ -5,7 +5,6 @@
  * @packageDocumentation
  * @module workspace
  */
-export * from './lib/command';
 export * from './lib/docker';
 export * from './lib/git';
 export * from './lib/schematics';

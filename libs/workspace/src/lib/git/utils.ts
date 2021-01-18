@@ -41,7 +41,7 @@ export interface GitGetHashOptions {
  * @see GitGetHashOptions {@link GitGetHashOptions}
  * @see gitRepoDirty {@link gitRepoDirty}
  */
-export function gitGetHash(options: GitGetHashOptions): string {
+export function gitGetHash(options: GitGetHashOptions = {}): string {
   const { cleanOnly, short } = options;
 
   if (cleanOnly && gitRepoDirty()) {

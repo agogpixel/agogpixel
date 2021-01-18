@@ -1,49 +1,32 @@
-import { Command } from '../../command';
+import { CommandBuilder } from '../../command-builder';
 
-import { gitCommandConfig, gitCommandOptions } from './git';
+import { gitCommandOptions } from './git';
 
 /**
  * TODO: Options...
  * @see GitLsFilesDocumentation {@link https://git-scm.com/docs/git-ls-files}
  */
 export const gitLsFilesCommandOptions = {
-  /**
-   *
-   */
   other: { option: '--other' },
-
-  /**
-   *
-   */
   excludeStandard: { option: '--exclude-standard' },
-};
-
-/**
- *
- */
-export const gitLsFilesCommandConfig = {
-  /**
-   *
-   */
-  command: 'ls-files',
-
-  /**
-   * @see gitLsFilesCommandOptions {@link gitLsFilesCommandOptions}
-   */
-  options: gitLsFilesCommandOptions,
 };
 
 /**
  * @see GitLsFilesDocumentation {@link https://git-scm.com/docs/git-ls-files}
  */
-export class GitLsFilesCommand extends Command<
-  typeof gitCommandOptions,
-  typeof gitLsFilesCommandOptions
-> {
-  /**
-   *
-   */
-  public constructor() {
-    super(gitCommandConfig, gitLsFilesCommandConfig);
-  }
+export class GitLsFilesCommand extends CommandBuilder {
+  public readonly command = {
+    git: GitLsFilesCommand.commandAccessorFactory<
+      typeof gitCommandOptions,
+      GitLsFilesCommand
+    >('git', 'git', gitCommandOptions, this),
+    lsFiles: GitLsFilesCommand.commandAccessorFactory<
+      typeof gitLsFilesCommandOptions,
+      GitLsFilesCommand
+    >('ls-files', 'lsFiles', gitLsFilesCommandOptions, this),
+  };
+
+  public readonly option = this.command.lsFiles.option;
+
+  protected readonly commandIndex = ['git', 'lsFiles'];
 }

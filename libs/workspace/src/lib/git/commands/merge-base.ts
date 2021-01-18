@@ -1,6 +1,6 @@
-import { Command } from '../../command';
+import { CommandBuilder } from '../../command-builder';
 
-import { gitCommandConfig, gitCommandOptions } from './git';
+import { gitCommandOptions } from './git';
 
 /**
  * TODO: Options...
@@ -9,31 +9,21 @@ import { gitCommandConfig, gitCommandOptions } from './git';
 export const gitMergeBaseCommandOptions = {};
 
 /**
- *
- */
-export const gitMergBaseCommandConfig = {
-  /**
-   *
-   */
-  command: 'merge-base',
-
-  /**
-   * @see gitMergeBaseCommandOptions {@link gitMergeBaseCommandOptions}
-   */
-  options: gitMergeBaseCommandOptions,
-};
-
-/**
  * @see GitMergeBaseDocumentation {@link https://git-scm.com/docs/git-merge-base}
  */
-export class GitMergeBaseCommand extends Command<
-  typeof gitCommandOptions,
-  typeof gitMergeBaseCommandOptions
-> {
-  /**
-   *
-   */
-  public constructor() {
-    super(gitCommandConfig, gitMergBaseCommandConfig);
-  }
+export class GitMergeBaseCommand extends CommandBuilder {
+  public readonly command = {
+    git: GitMergeBaseCommand.commandAccessorFactory<
+      typeof gitCommandOptions,
+      GitMergeBaseCommand
+    >('git', 'git', gitCommandOptions, this),
+    mergeBase: GitMergeBaseCommand.commandAccessorFactory<
+      typeof gitMergeBaseCommandOptions,
+      GitMergeBaseCommand
+    >('merge-base', 'mergeBase', gitMergeBaseCommandOptions, this),
+  };
+
+  public readonly option = this.command.mergeBase.option;
+
+  protected readonly commandIndex = ['git', 'mergeBase'];
 }

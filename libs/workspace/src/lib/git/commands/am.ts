@@ -1,6 +1,6 @@
-import { Command } from '../../command';
+import { CommandBuilder } from '../../command-builder';
 
-import { gitCommandConfig, gitCommandOptions } from './git';
+import { gitCommandOptions } from './git';
 
 /**
  * TODO: Options...
@@ -9,31 +9,25 @@ import { gitCommandConfig, gitCommandOptions } from './git';
 export const gitAmCommandOptions = {};
 
 /**
- *
- */
-export const gitAmCommandConfig = {
-  /**
-   *
-   */
-  command: 'am',
-
-  /**
-   * @see gitAmCommandOptions {@link gitAmCommandOptions}
-   */
-  options: gitAmCommandOptions,
-};
-
-/**
  * @see GitAmDocumentation {@link https://git-scm.com/docs/git-am}
  */
-export class GitAmCommand extends Command<
-  typeof gitCommandOptions,
-  typeof gitAmCommandOptions
-> {
-  /**
-   *
-   */
-  public constructor() {
-    super(gitCommandConfig, gitAmCommandConfig);
-  }
+export class GitAmCommand extends CommandBuilder {
+  public readonly command = {
+    git: GitAmCommand.commandAccessorFactory<typeof gitCommandOptions, GitAmCommand>(
+      'git',
+      'git',
+      gitCommandOptions,
+      this
+    ),
+    am: GitAmCommand.commandAccessorFactory<typeof gitAmCommandOptions, GitAmCommand>(
+      'am',
+      'am',
+      gitAmCommandOptions,
+      this
+    ),
+  };
+
+  public readonly option = this.command.am.option;
+
+  protected readonly commandIndex = ['git', 'am'];
 }

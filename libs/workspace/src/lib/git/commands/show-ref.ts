@@ -1,6 +1,6 @@
-import { Command } from '../../command';
+import { CommandBuilder } from '../../command-builder';
 
-import { gitCommandConfig, gitCommandOptions } from './git';
+import { gitCommandOptions } from './git';
 
 /**
  * TODO: Options...
@@ -9,31 +9,21 @@ import { gitCommandConfig, gitCommandOptions } from './git';
 export const gitShowRefCommandOptions = {};
 
 /**
- *
- */
-export const gitShowRefCommandConfig = {
-  /**
-   *
-   */
-  command: 'show-ref',
-
-  /**
-   * @see gitShowRefCommandOptions {@link gitShowRefCommandOptions}
-   */
-  options: gitShowRefCommandOptions,
-};
-
-/**
  * @see GitShowRefDocumentation {@link https://git-scm.com/docs/git-show-ref}
  */
-export class GitShowRefCommand extends Command<
-  typeof gitCommandOptions,
-  typeof gitShowRefCommandOptions
-> {
-  /**
-   *
-   */
-  public constructor() {
-    super(gitCommandConfig, gitShowRefCommandConfig);
-  }
+export class GitShowRefCommand extends CommandBuilder {
+  public readonly command = {
+    git: GitShowRefCommand.commandAccessorFactory<
+      typeof gitCommandOptions,
+      GitShowRefCommand
+    >('git', 'git', gitCommandOptions, this),
+    showRef: GitShowRefCommand.commandAccessorFactory<
+      typeof gitShowRefCommandOptions,
+      GitShowRefCommand
+    >('show-ref', 'showRef', gitShowRefCommandOptions, this),
+  };
+
+  public readonly option = this.command.showRef.option;
+
+  protected readonly commandIndex = ['git', 'showRef'];
 }
