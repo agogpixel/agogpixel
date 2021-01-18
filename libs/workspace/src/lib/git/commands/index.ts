@@ -7,6 +7,12 @@
  */
 export { GitAddCommand } from './add';
 export { GitAmCommand } from './am';
+export { GitArchiveCommand } from './archive';
+export {
+  GitBisectCommand,
+  GitBisectStartCommand,
+  GitBisectTermsCommand,
+} from './bisect';
 export { GitDiffCommand } from './diff';
 export { GitDiffIndexCommand } from './diff-index';
 export { GitCommand } from './git';
