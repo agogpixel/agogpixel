@@ -192,8 +192,7 @@ export function gitHasChangedFiles(base: string, head: string): boolean {
  */
 export function gitGetChangedFiles(base: string, head: string): string[] {
   const mergeBase = new GitMergeBaseCommand()
-    .parameter(base)
-    .parameter(head)
+    .parameter(base, head)
     .spawnSync({ maxBuffer })
     .stdout.toString('utf-8')
     .trim();
@@ -201,7 +200,6 @@ export function gitGetChangedFiles(base: string, head: string): string[] {
   return new GitDiffCommand().option
     .nameOnly()
     .option.relative()
-    .parameter(mergeBase)
-    .parameter(head)
+    .parameter(mergeBase, head)
     .spawnSync({ maxBuffer }).sanitizedStdout;
 }

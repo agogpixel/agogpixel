@@ -5,4 +5,4 @@
  * @packageDocumentation
  * @module workspace/docker
  */
-export const stub = undefined;
+export * from './commands';

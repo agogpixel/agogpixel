@@ -318,13 +318,13 @@ export abstract class CommandBuilder {
 
   /**
    *
-   * @param param
+   * @param params
    */
-  public parameter(param: string): this {
-    const sanitized = param.trim();
+  public parameter(...params: string[]): this {
+    const sanitized = params.map((p) => p.trim()).filter(Boolean);
 
-    if (sanitized) {
-      this.currentParameters.push(sanitized);
+    if (sanitized.length) {
+      this.currentParameters.concat(sanitized);
       this.cache.clear();
     }
 
