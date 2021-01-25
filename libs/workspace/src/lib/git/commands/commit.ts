@@ -9,6 +9,7 @@ import { gitCommandOptions } from './git';
 
 /**
  * @see GitCommitDocumentation {@link https://git-scm.com/docs/git-commit}
+ * @internal
  */
 const gitCommitCommandOptions = {
   all: { option: '--all' },
@@ -106,21 +107,38 @@ const gitCommitCommandOptions = {
 };
 
 /**
+ * Git commit command.
  * @see GitCommitDocumentation {@link https://git-scm.com/docs/git-commit}
  */
 export class GitCommitCommand extends CommandBuilder {
+  /**
+   * Command accessor map.
+   */
   public readonly command = {
+    /**
+     * Git command accessor.
+     */
     git: GitCommitCommand.commandAccessorFactory<
       typeof gitCommandOptions,
       GitCommitCommand
     >('git', 'git', gitCommandOptions, this),
+
+    /**
+     * Commit sub-command accessor.
+     */
     commit: GitCommitCommand.commandAccessorFactory<
       typeof gitCommitCommandOptions,
       GitCommitCommand
     >('commit', 'commit', gitCommitCommandOptions, this),
   };
 
+  /**
+   * Commit sub-command option accessor.
+   */
   public readonly option = this.command.commit.option;
 
+  /**
+   * Command name order.
+   */
   protected readonly commandIndex = ['git', 'commit'];
 }

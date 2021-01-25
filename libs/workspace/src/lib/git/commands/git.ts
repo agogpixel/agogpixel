@@ -7,6 +7,7 @@ import {
 
 /**
  * @see GitDocumentation {@link https://git-scm.com/docs/git}
+ * @internal
  */
 export const gitCommandOptions = {
   version: { option: '--version' },
@@ -67,17 +68,30 @@ export const gitCommandOptions = {
 };
 
 /**
+ * Git command.
  * @see GitDocumentation {@link https://git-scm.com/docs/git}
  */
 export class GitCommand extends CommandBuilder {
+  /**
+   * Command accessor map.
+   */
   public readonly command = {
+    /**
+     * Git command accessor.
+     */
     git: GitCommand.commandAccessorFactory<
       typeof gitCommandOptions,
       GitCommand
     >('git', 'git', gitCommandOptions, this),
   };
 
+  /**
+   * Git command option accessor.
+   */
   public readonly option = this.command.git.option;
 
+  /**
+   * Command name order.
+   */
   protected readonly commandIndex = ['git'];
 }

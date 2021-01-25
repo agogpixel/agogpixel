@@ -8,6 +8,7 @@ import { gitCommandOptions } from './git';
 
 /**
  * @see GitArchiveDocumentation {@link https://git-scm.com/docs/git-archive}
+ * @internal
  */
 const gitArchiveCommandOptions = {
   format: {
@@ -56,21 +57,38 @@ const gitArchiveCommandOptions = {
 };
 
 /**
+ * Git archive command.
  * @see GitArchiveDocumentation {@link https://git-scm.com/docs/git-archive}
  */
 export class GitArchiveCommand extends CommandBuilder {
+  /**
+   * Command accessor map.
+   */
   public readonly command = {
+    /**
+     * Git command accessor.
+     */
     git: GitArchiveCommand.commandAccessorFactory<
       typeof gitCommandOptions,
       GitArchiveCommand
     >('git', 'git', gitCommandOptions, this),
+
+    /**
+     * Archive sub-command accessor.
+     */
     archive: GitArchiveCommand.commandAccessorFactory<
       typeof gitArchiveCommandOptions,
       GitArchiveCommand
     >('archive', 'archive', gitArchiveCommandOptions, this),
   };
 
+  /**
+   * Archive sub-command option accessor.
+   */
   public readonly option = this.command.archive.option;
 
+  /**
+   * Command name order.
+   */
   protected readonly commandIndex = ['git', 'archive'];
 }

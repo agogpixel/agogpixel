@@ -8,6 +8,7 @@ import { gitCommandOptions } from './git';
 
 /**
  * @see GitRevParseDocumentation {@link https://git-scm.com/docs/git-rev-parse}
+ * @internal
  */
 const gitRevParseCommandOptions = {
   parseopt: { option: '--parseopt' },
@@ -127,21 +128,38 @@ const gitRevParseCommandOptions = {
 };
 
 /**
+ * Git rev-parse command.
  * @see GitRevParseDocumentation {@link https://git-scm.com/docs/git-rev-parse}
  */
 export class GitRevParseCommand extends CommandBuilder {
+  /**
+   * Command accessor map.
+   */
   public readonly command = {
+    /**
+     * Git command accessor.
+     */
     git: GitRevParseCommand.commandAccessorFactory<
       typeof gitCommandOptions,
       GitRevParseCommand
     >('git', 'git', gitCommandOptions, this),
+
+    /**
+     * Rev-parse sub-command accessor.
+     */
     revParse: GitRevParseCommand.commandAccessorFactory<
       typeof gitRevParseCommandOptions,
       GitRevParseCommand
     >('rev-parse', 'revParse', gitRevParseCommandOptions, this),
   };
 
+  /**
+   * Rev-parse sub-command option accessor.
+   */
   public readonly option = this.command.revParse.option;
 
+  /**
+   * Command name order.
+   */
   protected readonly commandIndex = ['git', 'revParse'];
 }

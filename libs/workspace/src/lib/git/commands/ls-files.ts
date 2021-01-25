@@ -8,6 +8,7 @@ import { gitCommandOptions } from './git';
 
 /**
  * @see GitLsFilesDocumentation {@link https://git-scm.com/docs/git-ls-files}
+ * @internal
  */
 const gitLsFilesCommandOptions = {
   cached: { option: '--cached' },
@@ -58,21 +59,38 @@ const gitLsFilesCommandOptions = {
 };
 
 /**
+ * Git ls-files command.
  * @see GitLsFilesDocumentation {@link https://git-scm.com/docs/git-ls-files}
  */
 export class GitLsFilesCommand extends CommandBuilder {
+  /**
+   * Command accessor map.
+   */
   public readonly command = {
+    /**
+     * Git command accessor.
+     */
     git: GitLsFilesCommand.commandAccessorFactory<
       typeof gitCommandOptions,
       GitLsFilesCommand
     >('git', 'git', gitCommandOptions, this),
+
+    /**
+     * Ls-files sub-command accessor.
+     */
     lsFiles: GitLsFilesCommand.commandAccessorFactory<
       typeof gitLsFilesCommandOptions,
       GitLsFilesCommand
     >('ls-files', 'lsFiles', gitLsFilesCommandOptions, this),
   };
 
+  /**
+   * Ls-files sub-command option accessor.
+   */
   public readonly option = this.command.lsFiles.option;
 
+  /**
+   * Command name order.
+   */
   protected readonly commandIndex = ['git', 'lsFiles'];
 }

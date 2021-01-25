@@ -8,6 +8,7 @@ import { gitCommandOptions } from './git';
 
 /**
  * @see GitDiffDocumentation {@link https://git-scm.com/docs/git-diff}
+ * @internal
  */
 const gitDiffCommandOptions = {
   patch: { option: '--patch' },
@@ -243,21 +244,38 @@ const gitDiffCommandOptions = {
 };
 
 /**
+ * Git diff command.
  * @see GitDiffDocumentation {@link https://git-scm.com/docs/git-diff}
  */
 export class GitDiffCommand extends CommandBuilder {
+  /**
+   * Command accessor map.
+   */
   public readonly command = {
+    /**
+     * Git command accessor.
+     */
     git: GitDiffCommand.commandAccessorFactory<
       typeof gitCommandOptions,
       GitDiffCommand
     >('git', 'git', gitCommandOptions, this),
+
+    /**
+     * Diff sub-command accessor.
+     */
     diff: GitDiffCommand.commandAccessorFactory<
       typeof gitDiffCommandOptions,
       GitDiffCommand
     >('diff', 'diff', gitDiffCommandOptions, this),
   };
 
+  /**
+   * Diff sub-command option accessor.
+   */
   public readonly option = this.command.diff.option;
 
+  /**
+   * Command name order.
+   */
   protected readonly commandIndex = ['git', 'diff'];
 }

@@ -8,6 +8,7 @@ import { gitCommandOptions } from './git';
 
 /**
  * @see GitAmDocumentation {@link https://git-scm.com/docs/git-am}
+ * @internal
  */
 const gitAmCommandOptions = {
   signoff: { option: '--signoff' },
@@ -87,21 +88,38 @@ const gitAmCommandOptions = {
 };
 
 /**
+ * Git am command.
  * @see GitAmDocumentation {@link https://git-scm.com/docs/git-am}
  */
 export class GitAmCommand extends CommandBuilder {
+  /**
+   * Command accessor map.
+   */
   public readonly command = {
+    /**
+     * Git command accessor.
+     */
     git: GitAmCommand.commandAccessorFactory<
       typeof gitCommandOptions,
       GitAmCommand
     >('git', 'git', gitCommandOptions, this),
+
+    /**
+     * Am sub-command accessor.
+     */
     am: GitAmCommand.commandAccessorFactory<
       typeof gitAmCommandOptions,
       GitAmCommand
     >('am', 'am', gitAmCommandOptions, this),
   };
 
+  /**
+   * Am sub-command option accessor.
+   */
   public readonly option = this.command.am.option;
 
+  /**
+   * Command name order.
+   */
   protected readonly commandIndex = ['git', 'am'];
 }

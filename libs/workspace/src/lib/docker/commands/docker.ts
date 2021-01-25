@@ -7,6 +7,7 @@ import {
 
 /**
  * @see DockerDocumentation {@link https://docs.docker.com/engine/reference/commandline/cli/}
+ * @internal
  */
 export const dockerCommandOptions = {
   config: {
@@ -53,17 +54,30 @@ export const dockerCommandOptions = {
 };
 
 /**
+ * Docker command.
  * @see DockerDocumentation {@link https://docs.docker.com/engine/reference/commandline/cli/}
  */
 export class DockerCommand extends CommandBuilder {
+  /**
+   * Command accessor map.
+   */
   public readonly command = {
+    /**
+     * Docker command accessor.
+     */
     docker: DockerCommand.commandAccessorFactory<
       typeof dockerCommandOptions,
       DockerCommand
     >('docker', 'docker', dockerCommandOptions, this),
   };
 
+  /**
+   * Docker command option accessor.
+   */
   public readonly option = this.command.docker.option;
 
+  /**
+   * Command name order.
+   */
   protected readonly commandIndex = ['docker'];
 }

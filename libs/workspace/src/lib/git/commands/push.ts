@@ -8,6 +8,7 @@ import { gitCommandOptions } from './git';
 
 /**
  * @see GitPushDocumentation {@link https://git-scm.com/docs/git-push}
+ * @internal
  */
 const gitPushCommandOptions = {
   all: { option: '--all' },
@@ -74,21 +75,38 @@ const gitPushCommandOptions = {
 };
 
 /**
+ * Git push command.
  * @see GitPushDocumentation {@link https://git-scm.com/docs/git-push}
  */
 export class GitPushCommand extends CommandBuilder {
+  /**
+   * Command accessor map.
+   */
   public readonly command = {
+    /**
+     * Git command accessor.
+     */
     git: GitPushCommand.commandAccessorFactory<
       typeof gitCommandOptions,
       GitPushCommand
     >('git', 'git', gitCommandOptions, this),
+
+    /**
+     * Push sub-command accessor.
+     */
     push: GitPushCommand.commandAccessorFactory<
       typeof gitPushCommandOptions,
       GitPushCommand
     >('push', 'push', gitPushCommandOptions, this),
   };
 
+  /**
+   * Push sub-command option accessor.
+   */
   public readonly option = this.command.push.option;
 
+  /**
+   * Command name order.
+   */
   protected readonly commandIndex = ['git', 'push'];
 }

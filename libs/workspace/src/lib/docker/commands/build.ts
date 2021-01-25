@@ -9,6 +9,7 @@ import { dockerCommandOptions } from './docker';
 
 /**
  * @see DockerBuildDocumentation {@link https://docs.docker.com/engine/reference/commandline/build/}
+ * @internal
  */
 const dockerBuildCommandOptions = {
   addHost: {
@@ -98,21 +99,38 @@ const dockerBuildCommandOptions = {
 };
 
 /**
+ * Docker build command.
  * @see DockerBuildDocumentation {@link https://docs.docker.com/engine/reference/commandline/build/}
  */
 export class DockerBuildCommand extends CommandBuilder {
+  /**
+   * Command accessor map.
+   */
   public readonly command = {
+    /**
+     * Docker command accessor.
+     */
     docker: DockerBuildCommand.commandAccessorFactory<
       typeof dockerCommandOptions,
       DockerBuildCommand
     >('docker', 'docker', dockerCommandOptions, this),
+
+    /**
+     * Build sub-command accessor.
+     */
     build: DockerBuildCommand.commandAccessorFactory<
       typeof dockerBuildCommandOptions,
       DockerBuildCommand
     >('build', 'build', dockerBuildCommandOptions, this),
   };
 
+  /**
+   * Build sub-command option accessor.
+   */
   public readonly option = this.command.build.option;
 
+  /**
+   * Command name order.
+   */
   protected readonly commandIndex = ['docker', 'build'];
 }

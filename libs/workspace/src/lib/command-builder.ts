@@ -18,7 +18,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { maxBufferSize } from './shared';
 
 /**
- *
+ * Option argument seperator enumeration.
  */
 export enum OptionArgumentSeparator {
   None = '',
@@ -27,7 +27,7 @@ export enum OptionArgumentSeparator {
 }
 
 /**
- *
+ * Option argument requirement enumeration.
  */
 export enum OptionArgumentRequirement {
   None,
@@ -36,7 +36,7 @@ export enum OptionArgumentRequirement {
 }
 
 /**
- *
+ * Option occurance enumeration.
  */
 export enum OptionOccurrence {
   Single,
@@ -44,78 +44,94 @@ export enum OptionOccurrence {
 }
 
 /**
- *
+ * Option configuration.
+ * @internal
  */
 interface OptionConfig {
   /**
-   *
+   * Option flag as used on cli.
    */
   option: string;
 
   /**
-   *
+   * Allow single or multiple occurrences of option.
    */
   occurrence?: OptionOccurrence;
 
   /**
-   *
+   * Seperator between option flag & argument (none, space, or equals sign).
    */
   seperator?: OptionArgumentSeparator;
 
   /**
-   *
+   * Indicate if option requires an argument (none, optional, or required).
    */
   argRequirement?: OptionArgumentRequirement;
 }
 
 /**
- *
+ * Option methods.
+ * @internal
  */
 interface OptionMethods {
   /**
-   *
+   * Validate specified argument for option against option configuration.
+   * @param arg Option argument.
    */
   validate: (arg?: string) => void;
 
   /**
-   *
+   * Transform specified argument into option flag with argument.
+   * @param arg Option argument.
+   * @returns Transformed option flag with argument as string arry.
    */
   transform: (arg?: string) => string[];
 
   /**
-   *
+   * Increment option occurrence counter.
+   * @returns Current occurrence count.
    */
   increment: () => number;
 }
 
 /**
- *
+ * Option accessor.
+ * @typeParam T Object mapping option names to option configurations.
+ * @typeParam U Command builder.
+ * @internal
  */
 type OptionAccessor<T, U> = {
   /**
-   *
+   * Invoke combined option methods with specified option argument.
+   * @param arg Option argument.
+   * @returns Command builder.
    */
   [k in keyof T]: (arg?: string) => U;
 };
 
 /**
- *
+ * Command accessor.
+ * @typeParam T Object mapping option names to option configurations.
+ * @typeParam U Command builder.
+ * @internal
  */
 type CommandAccessor<T, U> = {
   /**
-   *
+   * Command as used on cli.
    */
   command: string;
 
   /**
-   *
+   * Option accessor for this command.
    */
   option: OptionAccessor<T, U>;
 };
 
 /**
- *
- * @param config
+ * Option factory.
+ * @param config Option configuration.
+ * @returns Option methods.
+ * @internal
  */
 function optionFactory(config: OptionConfig): OptionMethods {
   const { option: opt } = config;
@@ -130,8 +146,8 @@ function optionFactory(config: OptionConfig): OptionMethods {
 
   return {
     /**
-     *
-     * @param arg
+     * Validate specified argument for option against option configuration.
+     * @param arg Option argument.
      */
     validate: (arg?: string) => {
       const missingArg =
@@ -153,8 +169,9 @@ function optionFactory(config: OptionConfig): OptionMethods {
     },
 
     /**
-     *
-     * @param arg
+     * Transform specified argument into option flag with argument.
+     * @param arg Option argument.
+     * @returns Transformed option flag with argument as string arry.
      */
     transform: (arg?: string) => {
       arg = arg ? arg.trim() : '';
@@ -167,28 +184,30 @@ function optionFactory(config: OptionConfig): OptionMethods {
     },
 
     /**
-     *
+     * Increment option occurrence counter.
+     * @returns Current occurrence count.
      */
     increment: () => ++counter,
   };
 }
 
 /**
- *
+ * Command builder cache.
+ * @internal
  */
 class CommandBuilderCache {
   /**
-   *
+   * Array cache.
    */
   public array: string[];
 
   /**
-   *
+   * String cache.
    */
   public string: string;
 
   /**
-   *
+   * Clear cache.
    */
   public clear(): void {
     this.array = undefined;
@@ -197,15 +216,19 @@ class CommandBuilderCache {
 }
 
 /**
- *
+ * Command builder.
+ * @internal
  */
 export abstract class CommandBuilder {
   /**
-   *
-   * @param command
-   * @param commandName
-   * @param options
-   * @param builder
+   * Command accessor factory.
+   * @typeParam T Object mapping option names to option configurations.
+   * @typeParam U Command builder.
+   * @param command Command as used on cli.
+   * @param commandName Command name.
+   * @param options Object mapping option names to option configurations.
+   * @param builder Command builder.
+   * @returns Command accessor instance.
    */
   protected static commandAccessorFactory<T, U>(
     command: string,
@@ -224,10 +247,13 @@ export abstract class CommandBuilder {
   }
 
   /**
-   *
-   * @param commandName
-   * @param options
-   * @param builder
+   * Option accessor factory.
+   * @typeParam T Object mapping option names to option configurations.
+   * @typeParam U Command builder.
+   * @param commandName Command name.
+   * @param options Object mapping option names to option configurations.
+   * @param builder Command builder.
+   * @returns Option accessor instance.
    */
   private static optionAccessorFactory<T, U>(
     commandName: string,
@@ -272,7 +298,7 @@ export abstract class CommandBuilder {
   }
 
   /**
-   *
+   * Object mapping command names to their corresponding command accessors.
    */
   public abstract readonly command: Record<
     string,
@@ -280,32 +306,33 @@ export abstract class CommandBuilder {
   >;
 
   /**
-   *
+   * Default option accessor.
    */
   public abstract readonly option: OptionAccessor<{}, CommandBuilder>;
 
   /**
-   *
+   * Track order of command names.
    */
   protected abstract readonly commandIndex: string[];
 
   /**
-   *
+   * Track order of specified options.
    */
   private readonly currentOptions: Record<string, string[]> = {};
 
   /**
-   *
+   *Track order of specified parameters.
    */
   private readonly currentParameters: string[] = [];
 
   /**
-   *
+   * Command builder cache.
    */
   private readonly cache = new CommandBuilderCache();
 
   /**
-   *
+   * Reset the command builder.
+   * @returns Command builder instance to facilitate method chaining.
    */
   public reset(): this {
     Object.values(this.currentOptions).forEach((q) => (q.length = 0));
@@ -317,8 +344,9 @@ export abstract class CommandBuilder {
   }
 
   /**
-   *
-   * @param params
+   * Set command parameter(s).
+   * @param params Command parameter(s).
+   * @returns Command builder instance to facilitate method chaining.
    */
   public parameter(...params: string[]): this {
     const sanitized = params.map((p) => p.trim()).filter(Boolean);
@@ -332,8 +360,11 @@ export abstract class CommandBuilder {
   }
 
   /**
-   *
-   * @param options
+   * Spawn command (with currently set options & parameters) as an asynchronous
+   * process.
+   * @param options Spawn options. {@link https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options}
+   * @returns Command process instance.
+   * @see CommandProcess {@link CommandProcess}
    */
   public spawn(options: SpawnOptions): CommandProcess {
     const [command, ...args] = this.toArray();
@@ -341,8 +372,11 @@ export abstract class CommandBuilder {
   }
 
   /**
-   *
-   * @param options
+   * Spawn command (with currently set options & parameters) as a synchronous
+   * process.
+   * @param options Spawn sync options. {@link https://nodejs.org/api/child_process.html#child_process_child_process_spawnsync_command_args_options}
+   * @returns Command process snapshot instance.
+   * @see CommandProcessSnapshot {@link CommandProcessSnapshot}
    */
   public spawnSync(options: SpawnSyncOptions): CommandProcessSnapshot {
     const [command, ...args] = this.toArray();
@@ -350,7 +384,8 @@ export abstract class CommandBuilder {
   }
 
   /**
-   *
+   * Get command invocation as array.
+   * @returns Command invocation as array of strings.
    */
   public toArray(): string[] {
     const cache = this.cache;
@@ -375,7 +410,8 @@ export abstract class CommandBuilder {
   }
 
   /**
-   *
+   * Get command invocation as string.
+   * @returns Command invocation as string.
    */
   public toString(): string {
     const cache = this.cache;
@@ -391,55 +427,56 @@ export abstract class CommandBuilder {
 }
 
 /**
- *
+ * Command process cache.
+ * @internal
  */
 class CommandProcessCache {
   /**
-   *
+   * Caches stdio with array of strings.
    */
   public readonly stdio: string[] = [];
 
   /**
-   *
+   * Cache stdout with buffer.
    */
   public readonly stdout = Buffer.alloc(maxBufferSize);
 
   /**
-   *
+   * Cache stderr with buffer.
    */
   public readonly stderr = Buffer.alloc(maxBufferSize);
 }
 
 /**
- *
+ * Command process.
  */
 class CommandProcess {
   /**
-   *
+   * Status code subject.
    */
   private readonly codeSubject$ = new BehaviorSubject<number>(undefined);
 
   /**
-   *
+   * Process signal subject.
    */
   private readonly signalSubject$ = new BehaviorSubject<NodeJS.Signals>(
     undefined
   );
 
   /**
-   *
+   * Error subject.
    */
   private readonly errorSubject$ = new BehaviorSubject<Error>(undefined);
 
   /**
-   *
+   * Command process snapshot subject.
    */
   private readonly snapshotSubject$ = new BehaviorSubject<
     CommandProcessSnapshot
   >(undefined);
 
   /**
-   *
+   * Stdout state stream.
    */
   public readonly stdout$ = new Observable<Buffer | string>((observer) => {
     this.childProcess.stdout
@@ -449,7 +486,7 @@ class CommandProcess {
   });
 
   /**
-   *
+   * Stderr state stream.
    */
   public readonly stderr$ = new Observable<Buffer | string>((observer) => {
     this.childProcess.stderr
@@ -459,13 +496,13 @@ class CommandProcess {
   });
 
   /**
-   *
+   * Command process cache.
    */
   private readonly cache = new CommandProcessCache();
 
   /**
-   *
-   * @param childProcess
+   * Instantiate command process.
+   * @param childProcess Child process.
    */
   public constructor(public readonly childProcess: ChildProcess) {
     childProcess.stdout.on('data', (chunk) => {
@@ -493,66 +530,67 @@ class CommandProcess {
   }
 
   /**
-   *
+   * Status code state stream.
    */
   public get code$(): Observable<number> {
     return this.codeSubject$;
   }
 
   /**
-   *
+   * Status code.
    */
   public get code(): number {
     return this.codeSubject$.value;
   }
 
   /**
-   *
+   * Process signal state stream.
    */
   public get signal$(): Observable<NodeJS.Signals> {
     return this.signalSubject$;
   }
 
   /**
-   *
+   * Process signal.
    */
   public get signal(): NodeJS.Signals {
     return this.signalSubject$.value;
   }
 
   /**
-   *
+   * Error state stream.
    */
   public get error$(): Observable<Error> {
     return this.errorSubject$;
   }
 
   /**
-   *
+   * Error.
    */
   public get error(): Error {
     return this.errorSubject$.value;
   }
 
   /**
-   *
+   * Command process snapshot state stream.
    */
   public get snapshot$(): Observable<CommandProcessSnapshot> {
     return this.snapshotSubject$;
   }
 
   /**
-   *
+   * Command process snapshot.
    */
   public get snapshot(): CommandProcessSnapshot {
     return this.snapshotSubject$.value;
   }
 
   /**
-   *
-   * @param status
-   * @param signal
-   * @param error
+   * Create command process snapshot.
+   * @param status Status code.
+   * @param signal Process signal.
+   * @param error Error.
+   * @returns Command process snapshot instance.
    */
   private createSnapshot(
     status: number | null,
@@ -574,32 +612,34 @@ class CommandProcess {
 }
 
 /**
- *
+ * Command process snapshot cache.
+ * @internal
  */
 class CommandProcessSnapshotCache {
   /**
-   *
+   * Sanitized output.
    */
   public sanitizedOutput: string[];
 
   /**
-   *
+   * Sanitized stdout.
    */
   public sanitizedStdout: string[];
 
   /**
-   *
+   * Sanitized stderr.
    */
   public sanitizedStderr: string[];
 }
 
 /**
- *
+ * Command process snapshot.
  */
 class CommandProcessSnapshot implements SpawnSyncReturns<Buffer | string> {
   /**
-   *
-   * @param str
+   * Sanitize string.
+   * @param str String.
+   * @returns Santizied string.
    */
   public static sanitzeString(str: string): string[] {
     return str
@@ -609,69 +649,69 @@ class CommandProcessSnapshot implements SpawnSyncReturns<Buffer | string> {
   }
 
   /**
-   *
+   * Snapshot cache.
    */
   private readonly cache = new CommandProcessSnapshotCache();
 
   /**
-   *
-   * @param spawnSyncReturns
+   * Instantiate command process snapshot.
+   * @param spawnSyncReturns Spawn sync return object.
    */
   public constructor(
     private readonly spawnSyncReturns: SpawnSyncReturns<Buffer | string>
   ) {}
 
   /**
-   *
+   * Process ID.
    */
   public get pid(): number {
     return this.spawnSyncReturns.pid;
   }
 
   /**
-   *
+   * Output.
    */
   public get output(): string[] {
     return this.spawnSyncReturns.output;
   }
 
   /**
-   *
+   * Stdout.
    */
   public get stdout(): Buffer | string {
     return this.spawnSyncReturns.stdout;
   }
 
   /**
-   *
+   * Stderr.
    */
   public get stderr(): Buffer | string {
     return this.spawnSyncReturns.stderr;
   }
 
   /**
-   *
+   * Status code.
    */
   public get status(): number {
     return this.spawnSyncReturns.status;
   }
 
   /**
-   *
+   * Process signal.
    */
   public get signal(): NodeJS.Signals {
     return this.spawnSyncReturns.signal;
   }
 
   /**
-   *
+   * Error.
    */
   public get error(): Error {
     return this.spawnSyncReturns.error;
   }
 
   /**
-   *
+   * Santized output.
    */
   public get sanitizedOutput(): string[] {
     const cache = this.cache;
@@ -690,7 +730,7 @@ class CommandProcessSnapshot implements SpawnSyncReturns<Buffer | string> {
   }
 
   /**
-   *
+   * Sanitized stdout.
    */
   public get sanitizedStdout(): string[] {
     const cache = this.cache;
@@ -707,7 +747,7 @@ class CommandProcessSnapshot implements SpawnSyncReturns<Buffer | string> {
   }
 
   /**
-   *
+   * Sanitized stderr.
    */
   public get sanitizedStderr(): string[] {
     const cache = this.cache;
