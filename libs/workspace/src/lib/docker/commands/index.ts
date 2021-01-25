@@ -8,5 +8,6 @@
 export { DockerBuildCommand } from './build';
 export { DockerCommand } from './docker';
 export { DockerLoginCommand } from './login';
+export { DockerPullCommand } from './pull';
 export { DockerPushCommand } from './push';
 export { DockerTagCommand } from './tag';
