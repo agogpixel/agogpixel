@@ -6,6 +6,7 @@
  * @module workspace/git/utils
  */
 import { maxBufferSize as maxBuffer } from '../shared';
+
 import {
   GitDiffCommand,
   GitDiffIndexCommand,

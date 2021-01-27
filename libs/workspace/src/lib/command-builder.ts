@@ -450,7 +450,7 @@ class CommandProcessCache {
 /**
  * Command process.
  */
-class CommandProcess {
+export class CommandProcess {
   /**
    * Status code subject.
    */
@@ -635,7 +635,7 @@ class CommandProcessSnapshotCache {
 /**
  * Command process snapshot.
  */
-class CommandProcessSnapshot implements SpawnSyncReturns<Buffer | string> {
+export class CommandProcessSnapshot implements SpawnSyncReturns<Buffer | string> {
   /**
    * Sanitize string.
    * @param str String.

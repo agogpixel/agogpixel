@@ -44,7 +44,6 @@ const dockerBuildCommandOptions = {
   isolation: {
     option: '--isolation',
     seperator: OptionArgumentSeparator.Space,
-    argRequired: OptionArgumentRequirement.Required,
   },
   label: {
     option: '--label',

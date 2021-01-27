@@ -6,3 +6,4 @@
  * @module workspace/docker
  */
 export * from './commands';
+export * from './utils';
