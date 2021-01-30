@@ -67,11 +67,6 @@ export interface ProjectVariantManifest {
  */
 export interface ProjectManifest extends ProjectVariantManifest {
   /**
-   * Image name.
-   */
-  name: string;
-
-  /**
    * Image variants.
    */
   variants?: Record<string, ProjectVariantManifest>;

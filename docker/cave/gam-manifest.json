@@ -1,0 +1,10 @@
+{
+  "build": {
+    "context": ".",
+    "options": {
+      "tag": ["cave:latest"]
+    }
+  },
+  "artifacts": {},
+  "variants": {}
+}

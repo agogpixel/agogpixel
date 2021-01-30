@@ -2,12 +2,13 @@
   "build": {
     "context": ".",
     "options": {
-      "tag": ["alpine-foundation:latest"]
+      "tag": ["dind-foundation:latest"]
     }
   },
   "artifacts": {
     "shared-alpine": "./scripts",
-    "alpine-foundation-installer": "./scripts"
+    "alpine-foundation-installer": "./scripts",
+    "alpine-dind-foundation-installer": "./scripts"
   },
   "variants": {
     "3-10": {
@@ -15,12 +16,13 @@
         "context": ".",
         "options": {
           "buildArgs": ["ALPINE_VERSION=3.10"],
-          "tag": ["alpine-foundation:3.10"]
+          "tag": ["dind-foundation:3.10"]
         }
       },
       "artifacts": {
         "shared-alpine": "./scripts",
-        "alpine-foundation-installer": "./scripts"
+        "alpine-foundation-installer": "./scripts",
+        "alpine-dind-foundation-installer": "./scripts"
       }
     },
     "3-11": {
@@ -28,12 +30,13 @@
         "context": ".",
         "options": {
           "buildArgs": ["ALPINE_VERSION=3.11"],
-          "tag": ["alpine-foundation:3.11"]
+          "tag": ["dind-foundation:3.11"]
         }
       },
       "artifacts": {
         "shared-alpine": "./scripts",
-        "alpine-foundation-installer": "./scripts"
+        "alpine-foundation-installer": "./scripts",
+        "alpine-dind-foundation-installer": "./scripts"
       }
     },
     "3-12": {
@@ -41,12 +44,13 @@
         "context": ".",
         "options": {
           "buildArgs": ["ALPINE_VERSION=3.12"],
-          "tag": ["alpine-foundation:3.12"]
+          "tag": ["dind-foundation:3.12"]
         }
       },
       "artifacts": {
         "shared-alpine": "./scripts",
-        "alpine-foundation-installer": "./scripts"
+        "alpine-foundation-installer": "./scripts",
+        "alpine-dind-foundation-installer": "./scripts"
       }
     },
     "edge": {
@@ -54,12 +58,13 @@
         "context": ".",
         "options": {
           "buildArgs": ["ALPINE_VERSION=edge"],
-          "tag": ["alpine-foundation:edge"]
+          "tag": ["dind-foundation:edge"]
         }
       },
       "artifacts": {
         "shared-alpine": "./scripts",
-        "alpine-foundation-installer": "./scripts"
+        "alpine-foundation-installer": "./scripts",
+        "alpine-dind-foundation-installer": "./scripts"
       }
     }
   }

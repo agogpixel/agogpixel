@@ -18,7 +18,22 @@
     }
   },
   "artifacts": {
-    "shared-alpine": ["docker/scripts/shared-lib.sh", "docker/scripts/shared-alpine-lib.sh"],
-    "alpine-foundation-installer": ["docker/scripts/alpine-foundation-installer.sh"]
+    "shared-alpine": [
+      "docker/scripts/shared-lib.sh",
+      "docker/scripts/shared-alpine-lib.sh"
+    ],
+    "alpine-foundation-installer": [
+      "docker/scripts/alpine-foundation-installer.sh"
+    ],
+    "alpine-dfromd-foundation-installer": [
+      "docker/scripts/alpine-dfromd-foundation-installer.sh"
+    ],
+    "alpine-dind-foundation-installer": [
+      "docker/scripts/alpine-dind-foundation-installer.sh"
+    ],
+    "alpine-net-installer": ["docker/scripts/alpine-net-installer.sh"],
+    "alpine-git-installer": ["docker/scripts/alpine-git-installer.sh"],
+    "alpine-nodejs-installer": ["docker/scripts/alpine-nodejs-installer.sh"],
+    "bats-installer": ["docker/scripts/bats-installer.sh"]
   }
 }

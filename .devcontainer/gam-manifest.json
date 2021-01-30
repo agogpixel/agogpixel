@@ -1,0 +1,91 @@
+{
+  "build": {
+    "context": ".",
+    "options": {
+      "tag": ["devcontainer:latest"]
+    }
+  },
+  "artifacts": {
+    "shared-alpine": "./library-scripts",
+    "alpine-foundation-installer": "./library-scripts",
+    "alpine-dfromd-foundation-installer": "./library-scripts",
+    "alpine-net-installer": "./library-scripts",
+    "alpine-git-installer": "./library-scripts",
+    "alpine-nodejs-installer": "./library-scripts",
+    "bats-installer": "./library-scripts"
+  },
+  "variants": {
+    "3-10": {
+      "build": {
+        "context": ".",
+        "options": {
+          "buildArgs": ["ALPINE_VERSION=3.10"],
+          "tag": ["devcontainer:3.10"]
+        }
+      },
+      "artifacts": {
+        "shared-alpine": "./library-scripts",
+        "alpine-foundation-installer": "./library-scripts",
+        "alpine-dfromd-foundation-installer": "./library-scripts",
+        "alpine-net-installer": "./library-scripts",
+        "alpine-git-installer": "./library-scripts",
+        "alpine-nodejs-installer": "./library-scripts",
+        "bats-installer": "./library-scripts"
+      }
+    },
+    "3-11": {
+      "build": {
+        "context": ".",
+        "options": {
+          "buildArgs": ["ALPINE_VERSION=3.11"],
+          "tag": ["devcontainer:3.11"]
+        }
+      },
+      "artifacts": {
+        "shared-alpine": "./library-scripts",
+        "alpine-foundation-installer": "./library-scripts",
+        "alpine-dfromd-foundation-installer": "./library-scripts",
+        "alpine-net-installer": "./library-scripts",
+        "alpine-git-installer": "./library-scripts",
+        "alpine-nodejs-installer": "./library-scripts",
+        "bats-installer": "./library-scripts"
+      }
+    },
+    "3-12": {
+      "build": {
+        "context": ".",
+        "options": {
+          "buildArgs": ["ALPINE_VERSION=3.12"],
+          "tag": ["devcontainer:3.12"]
+        }
+      },
+      "artifacts": {
+        "shared-alpine": "./library-scripts",
+        "alpine-foundation-installer": "./library-scripts",
+        "alpine-dfromd-foundation-installer": "./library-scripts",
+        "alpine-net-installer": "./library-scripts",
+        "alpine-git-installer": "./library-scripts",
+        "alpine-nodejs-installer": "./library-scripts",
+        "bats-installer": "./library-scripts"
+      }
+    },
+    "edge": {
+      "build": {
+        "context": ".",
+        "options": {
+          "buildArgs": ["ALPINE_VERSION=edge"],
+          "tag": ["devcontainer:edge"]
+        }
+      },
+      "artifacts": {
+        "shared-alpine": "./library-scripts",
+        "alpine-foundation-installer": "./library-scripts",
+        "alpine-dfromd-foundation-installer": "./library-scripts",
+        "alpine-net-installer": "./library-scripts",
+        "alpine-git-installer": "./library-scripts",
+        "alpine-nodejs-installer": "./library-scripts",
+        "bats-installer": "./library-scripts"
+      }
+    }
+  }
+}
