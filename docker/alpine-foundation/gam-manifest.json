@@ -1,0 +1,65 @@
+{
+  "name": "alpine-foundation",
+  "build": {
+    "context": ".",
+    "options": {}
+  },
+  "artifacts": {
+    "shared-alpine": "./scripts",
+    "alpine-foundation-installer": "./scripts"
+  },
+  "variants": {
+    "3-10": {
+      "build": {
+        "context": ".",
+        "options": {
+          "buildArgs": ["ALPINE_VERSION=3.10"],
+          "tag": ["3.10"]
+        }
+      },
+      "artifacts": {
+        "shared-alpine": "./scripts",
+        "alpine-foundation-installer": "./scripts"
+      }
+    },
+    "3-11": {
+      "build": {
+        "context": ".",
+        "options": {
+          "buildArgs": ["ALPINE_VERSION=3.11"],
+          "tag": ["3.11"]
+        }
+      },
+      "artifacts": {
+        "shared-alpine": "./scripts",
+        "alpine-foundation-installer": "./scripts"
+      }
+    },
+    "3-12": {
+      "build": {
+        "context": ".",
+        "options": {
+          "buildArgs": ["ALPINE_VERSION=3.12"],
+          "tag": ["3.12"]
+        }
+      },
+      "artifacts": {
+        "shared-alpine": "./scripts",
+        "alpine-foundation-installer": "./scripts"
+      }
+    },
+    "edge": {
+      "build": {
+        "context": ".",
+        "options": {
+          "buildArgs": ["ALPINE_VERSION=edge"],
+          "tag": ["edge"]
+        }
+      },
+      "artifacts": {
+        "shared-alpine": "./scripts",
+        "alpine-foundation-installer": "./scripts"
+      }
+    }
+  }
+}

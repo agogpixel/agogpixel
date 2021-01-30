@@ -1,0 +1,24 @@
+{
+  "organization": "agogpixel",
+  "affected": {
+    "defaultBase": "main"
+  },
+  "projects": {
+    "alpine-foundation": {
+      "root": "docker/alpine-foundation"
+    },
+    "devcontainer": {
+      "root": ".devcontainer"
+    },
+    "dind-foundation": {
+      "root": "docker/dind-foundation"
+    },
+    "cave": {
+      "root": "docker/cave"
+    }
+  },
+  "artifacts": {
+    "shared-alpine": ["docker/scripts/shared-lib.sh", "docker/scripts/shared-alpine-lib.sh"],
+    "alpine-foundation-installer": ["docker/scripts/alpine-foundation-installer.sh"]
+  }
+}

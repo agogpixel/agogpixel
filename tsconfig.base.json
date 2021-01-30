@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@agogpixel/ng-phaser": ["libs/shared/phaser/ng-phaser/src/index.ts"],
-      "@agogpixel/workspace": ["libs/workspace/src/index.ts"]
+      "@agogpixel/workspace": ["libs/workspace/src/index.ts"],
+      "@agogpixel/gam": ["libs/gam/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

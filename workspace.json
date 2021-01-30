@@ -69,10 +69,42 @@
           }
         }
       }
+    },
+    "gam": {
+      "root": "libs/gam",
+      "sourceRoot": "libs/gam/src",
+      "projectType": "library",
+      "architect": {
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/gam/**/*.ts"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/gam"],
+          "options": {
+            "jestConfig": "libs/gam/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "builder": "@nrwl/node:package",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/libs/gam",
+            "tsConfig": "libs/gam/tsconfig.lib.json",
+            "packageJson": "libs/gam/package.json",
+            "main": "libs/gam/src/index.ts",
+            "assets": ["libs/gam/*.md"]
+          }
+        }
+      }
     }
   },
   "cli": {
-    "defaultCollection": "@nrwl/workspace"
+    "defaultCollection": "@nrwl/node"
   },
   "schematics": {
     "@nrwl/angular:application": {
@@ -85,6 +117,5 @@
     "@nrwl/angular:component": {
       "style": "scss"
     }
-  },
-  "defaultProject": "shared-phaser-ng-phaser"
+  }
 }
