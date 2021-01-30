@@ -10,13 +10,9 @@ import { Tree } from '@nrwl/devkit';
 
 import { normalize } from 'path';
 
-import { ProjectManifest, ProjectVariantManifest } from './models';
+import { ProjectVariantManifest } from './models';
 
-import {
-  getProjectMetadata,
-  getProjectVariantManifests,
-  getProjectVariantNames,
-} from './shared';
+import { getProjectMetadata, parseVariants } from './shared';
 
 /**
  * Build Gam project.
@@ -56,37 +52,6 @@ export function build(
     result,
     variants: variantResults,
   };
-}
-
-/**
- * Parse variants.
- * @param manifest Gam project manifest data.
- * @param variants Variant names. Specifying a boolean value will build all or
- * none.
- * @returns Variant manifests.
- * @throws Error
- * @internal
- */
-function parseVariants(
-  manifest: ProjectManifest,
-  variants: boolean | string[]
-): Record<string, ProjectVariantManifest> {
-  const availableVariants = getProjectVariantNames(manifest);
-  let parsedVariants: string[] = [];
-
-  if (Array.isArray(variants)) {
-    variants.forEach((variant) => {
-      if (!availableVariants.includes(variant)) {
-        throw new Error(`Variant: ${variant} not found`);
-      }
-
-      parsedVariants.push(variant);
-    });
-  } else if (variants) {
-    parsedVariants = availableVariants;
-  }
-
-  return getProjectVariantManifests(manifest, parsedVariants);
 }
 
 /**

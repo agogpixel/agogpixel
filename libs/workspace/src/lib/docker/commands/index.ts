@@ -7,6 +7,7 @@
  */
 export { DockerBuildCommand } from './build';
 export { DockerCommand } from './docker';
+export { DockerImagesCommand } from './images';
 export { DockerLoginCommand } from './login';
 export { DockerPullCommand } from './pull';
 export { DockerPushCommand } from './push';

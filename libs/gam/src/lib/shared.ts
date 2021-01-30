@@ -98,3 +98,33 @@ export function getProjectVariantManifests(
   );
   return variantManifests;
 }
+
+/**
+ * Parse variants.
+ * @param manifest Gam project manifest data.
+ * @param variants Variant names. Specifying a boolean value will build all or
+ * none.
+ * @returns Variant manifests.
+ * @throws Error
+ */
+export function parseVariants(
+  manifest: ProjectManifest,
+  variants: boolean | string[]
+): Record<string, ProjectVariantManifest> {
+  const availableVariants = getProjectVariantNames(manifest);
+  let parsedVariants: string[] = [];
+
+  if (Array.isArray(variants)) {
+    variants.forEach((variant) => {
+      if (!availableVariants.includes(variant)) {
+        throw new Error(`Variant: ${variant} not found`);
+      }
+
+      parsedVariants.push(variant);
+    });
+  } else if (variants) {
+    parsedVariants = availableVariants;
+  }
+
+  return getProjectVariantManifests(manifest, parsedVariants);
+}

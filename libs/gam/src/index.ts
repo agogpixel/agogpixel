@@ -10,3 +10,4 @@ export * from './lib/build';
 export * from './lib/models';
 export * from './lib/shared';
 export * from './lib/sync';
+export * from './lib/tag';

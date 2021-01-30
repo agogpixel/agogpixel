@@ -8,7 +8,11 @@
 import { CommandProcess, CommandProcessSnapshot } from '../command-builder';
 import { maxBufferSize as maxBuffer } from '../shared';
 
-import { DockerBuildCommand } from './commands';
+import {
+  DockerBuildCommand,
+  DockerImagesCommand,
+  DockerTagCommand,
+} from './commands';
 
 /**
  * Docker build options.
@@ -39,9 +43,9 @@ export interface DockerBuildOptions {
 
 /**
  * Build docker image (synchronous).
- *
  * @param context Build context.
  * @param options Build options.
+ * @returns Command process snapshot.
  */
 export function dockerBuild(
   context: string,
@@ -52,9 +56,9 @@ export function dockerBuild(
 
 /**
  * Build docker image (asynchronous).
- *
  * @param context Build context.
  * @param options Build options.
+ * @returns Command process.
  */
 export function dockerBuildAsync(
   context: string,
@@ -65,9 +69,10 @@ export function dockerBuildAsync(
 
 /**
  * Build docker build command from context & options.
- *
  * @param context Build context.
  * @param options Build options.
+ * @returns Docker build command.
+ * @internal
  */
 function buildDockerBuildCommand(
   context: string,
@@ -148,4 +153,50 @@ function buildDockerBuildCommand(
   }
 
   return buildCommand;
+}
+
+/**
+ * Tag docker image (synchronous).
+ * @param source Source image.
+ * @param target Target image(s).
+ * @return Command process snapshot(s).
+ */
+export function dockerTag(
+  source: string,
+  target: string | string[]
+): CommandProcessSnapshot[] {
+  const targets = Array.isArray(target) ? target : [target];
+  const command = new DockerTagCommand();
+
+  return targets.map((t) =>
+    command.reset().parameter(source, t).spawnSync({ maxBuffer })
+  );
+}
+
+/**
+ * Tag docker image (asynchronous).
+ * @param source Source image.
+ * @param target Target image(s).
+ * @return Command process snapshot(s).
+ */
+export function dockerTagAsync(
+  source: string,
+  target: string | string[]
+): CommandProcess[] {
+  const targets = Array.isArray(target) ? target : [target];
+  const command = new DockerTagCommand();
+
+  return targets.map((t) => command.reset().parameter(source, t).spawn({}));
+}
+
+/**
+ * Test if docker image exists locally.
+ * @param image Image name (<repository>[:<tag>]).
+ * @returns True if image exists, false otherwise.
+ */
+export function dockerImageExists(image: string): boolean {
+  return !!new DockerImagesCommand().option
+    .quiet()
+    .parameter(image)
+    .spawnSync({ maxBuffer }).sanitizedStdout.length;
 }
